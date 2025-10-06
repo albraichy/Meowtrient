@@ -11,23 +11,11 @@
       --good-bg:#052e1a; --good-fg:#bbf7d0; --good-br:#064e3b;
       --bad-bg:#3b0a0a; --bad-fg:#fecaca; --bad-br:#7f1d1d;
     }
-    @media (prefers-color-scheme: light){
-      :root{
-        --bg:#f6f7fb; --card:#ffffff; --ring:#d1d5db; --text:#0f172a; --muted:#475569;
-        --hx:#0ea5e9; --accent:#16a34a; --accent2:#10b981; --line:#e5e7eb; --table-head:#f1f5f9;
-        --good-bg:#052e1a; --good-fg:#065f46; --good-br:#10b981;
-      }
-    }
     *{box-sizing:border-box}
-    body{
-      margin:0; background:var(--bg); color:var(--text);
-      font-family:"Cairo", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      line-height:1.6;
-      min-height:100dvh; display:flex; flex-direction:column;
-    }
+    body{ margin:0; background:var(--bg); color:var(--text); font-family:"Cairo",ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial; line-height:1.6;
+          min-height:100dvh; display:flex; flex-direction:column;}
     header{padding:10px 12px; text-align:center; position:sticky; top:0; z-index:5; background:var(--bg); border-bottom:1px solid var(--line)}
-    h1{margin:0; font-size:clamp(16px,3.2vw,24px); font-weight:800; letter-spacing:.2px;
-      background:linear-gradient(90deg,var(--text),var(--hx) 60%,var(--text)); -webkit-background-clip:text; background-clip:text; color:transparent}
+    h1{margin:0; font-size:clamp(16px,3.2vw,24px); font-weight:800; letter-spacing:.2px; color:#c7f9e5}
     .topbar{display:flex; justify-content:center; align-items:center; gap:8px; margin-top:6px}
     .lang-toggle{display:inline-flex; gap:4px; align-items:center; border:1px solid var(--line); border-radius:999px; padding:3px 6px; font-size:11px; background:var(--card); direction:ltr}
     .lang-toggle button{border:none; background:transparent; padding:3px 6px; border-radius:999px; cursor:pointer; font-weight:800; color:var(--muted)}
@@ -35,15 +23,12 @@
 
     main{ width:min(960px,96%); margin:8px auto 10px; flex:1 0 auto; }
 
-    /* Cards & grid */
     .grid{display:grid; grid-template-columns:1fr 1fr; gap:8px}
     .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:10px; box-shadow:0 6px 16px rgba(0,0,0,.06)}
-    .section-title{font-size:12px; font-weight:800; color:#065f46; background:#d1fae5; display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px; margin-bottom:6px; border:1px solid #a7f3d0}
-    @media (prefers-color-scheme: dark){ .section-title{ color:#bbf7d0; background:#052e1a; border:1px solid #064e3b } }
+    .section-title{font-size:12px; font-weight:800; color:#bbf7d0; background:#052e1a; display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px; margin-bottom:6px; border:1px solid #064e3b}
 
     label{display:block; font-weight:700; margin-bottom:4px; font-size:12px}
     input{width:100%; padding:8px 10px; border-radius:10px; background:transparent; border:1px solid var(--ring); outline:none; font-size:14px; color:var(--text)}
-    input::placeholder{color:#94a3b8}
     input:focus{border-color:var(--accent); box-shadow:0 0 0 3px #22c55e22}
     .two{display:grid; grid-template-columns:1fr; gap:6px}
 
@@ -58,24 +43,21 @@
 
     footer{padding:6px 0 8px; text-align:center; color:#64748b; font-size:12px; margin-top:auto}
 
-    /* Serving card (top) */
+    /* Serving card flip */
     #servingCard{ margin-bottom:12px; }
     #servingCard .serving-bar{display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center}
-    /* Arabic order: label | input | pill */
+    html[lang="ar"] #servingCard{ direction:rtl }
     html[lang="ar"] #servingCard .serving-bar label[for="servingTop"]{order:1; text-align:right}
     html[lang="ar"] #servingCard .serving-bar #servingTop{order:2}
     html[lang="ar"] #servingCard .serving-bar #remain{order:3}
-    /* English order: pill | input | label */
-    html[lang="en"] #servingCard .serving-bar{direction:ltr}
+    html[lang="en"] #servingCard{ direction:ltr }
     html[lang="en"] #servingCard .serving-bar #remain{order:1}
     html[lang="en"] #servingCard .serving-bar #servingTop{order:2}
     html[lang="en"] #servingCard .serving-bar label[for="servingTop"]{order:3; text-align:left}
 
-    /* Pill & alerts */
     .remain-pill{min-width:64px; padding:6px 10px; border-radius:999px; font-weight:800; text-align:center; background:var(--good-bg); color:var(--good-fg); border:1px solid var(--good-br)}
     .remain-pill.bad{background:var(--bad-bg); color:var(--bad-fg); border-color:var(--bad-br)}
     .alert-area{margin-top:8px; padding:10px 12px; border-radius:12px; font-size:14px; font-weight:700; background:var(--bad-bg); color:var(--bad-fg); border:1px solid var(--bad-br); display:none}
-    .unit{opacity:.85; font-size:.9em}
     input.invalid{ border-color:#ff4d4f !important; background-color:rgba(255,77,79,.12) !important; }
   </style>
 </head>
@@ -91,7 +73,6 @@
   </header>
 
   <main>
-    <!-- Top serving card -->
     <section class="card" id="servingCard">
       <div class="serving-bar">
         <div id="remain" class="remain-pill">100%</div>
@@ -102,47 +83,25 @@
     </section>
 
     <div class="grid">
-      <!-- Inputs -->
       <section class="card">
         <div class="section-title" data-i18n="inputs">⚙️ إدخال البيانات</div>
         <div class="two">
-          <div>
-            <label for="protein" data-i18n="protein">بروتين %</label>
-            <input id="protein" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*">
-          </div>
-          <div>
-            <label for="fat" data-i18n="fat">دهون %</label>
-            <input id="fat" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*">
-          </div>
+          <div><label for="protein" data-i18n="protein">بروتين %</label><input id="protein" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"></div>
+          <div><label for="fat" data-i18n="fat">دهون %</label><input id="fat" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"></div>
         </div>
         <div class="two" style="margin-top:6px">
-          <div>
-            <label for="fiber" data-i18n="fiber">ألياف %</label>
-            <input id="fiber" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*">
-          </div>
-          <div>
-            <label for="moisture" data-i18n="moisture">رطوبة %</label>
-            <input id="moisture" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*">
-          </div>
+          <div><label for="fiber" data-i18n="fiber">ألياف %</label><input id="fiber" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"></div>
+          <div><label for="moisture" data-i18n="moisture">رطوبة %</label><input id="moisture" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"></div>
         </div>
         <div class="two" style="margin-top:6px">
-          <div>
-            <label for="ash" data-i18n="ash">رماد %</label>
-            <input id="ash" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*">
-          </div>
+          <div><label for="ash" data-i18n="ash">رماد %</label><input id="ash" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"></div>
         </div>
       </section>
 
-      <!-- Results -->
       <section class="card">
         <div class="section-title" data-i18n="results">📊 النتائج</div>
         <table>
-          <thead>
-            <tr>
-              <th data-i18n="col_item">&lrm;</th>
-              <th data-i18n="col_serving">لكل حصة</th>
-            </tr>
-          </thead>
+          <thead><tr><th data-i18n="col_item"></th><th data-i18n="col_serving">لكل حصة</th></tr></thead>
           <tbody>
             <tr><td data-i18n="calories">السعرات</td><td id="calServing">—</td></tr>
             <tr><td data-i18n="p">البروتين</td><td id="gProtein">—</td></tr>
@@ -162,134 +121,90 @@
     </div>
   </main>
 
-  <footer id="pageFooter">
-    <span id="rights">© 2025 albraichy — جميع الحقوق محفوظة.</span>
-  </footer>
+  <footer id="pageFooter"><span id="rights">© 2025 albraichy — جميع الحقوق محفوظة.</span></footer>
 
   <script>
-    // i18n strings
     const STR = {
-      ar: {
-        title:"حاسبة حصّة أكل القطط", inputs:"⚙️ إدخال البيانات",
-        serving_label:"حجم الحصّة (غ)",
-        protein:"بروتين %", fat:"دهون %", fiber:"ألياف %", moisture:"رطوبة %", ash:"رماد %",
-        calc:"احسب", reset:"إعادة ضبط", results:"📊 النتائج",
-        col_item:"", col_serving:"لكل حصة",
-        calories:"السعرات",
-        p:"البروتين", f:"الدهون", fi:"الألياف", m:"الرطوبة", a:"الرماد", nfe:"الكارب",
-        rights:"© 2025 albraichy — جميع الحقوق محفوظة."
-      },
-      en: {
-        title:"Cat Food Serving Calculator", inputs:"⚙️ Inputs",
-        serving_label:"Serving size (g)",
-        protein:"Protein %", fat:"Fat %", fiber:"Fiber %", moisture:"Moisture %", ash:"Ash %",
-        calc:"Calculate", reset:"Reset", results:"📊 Results",
-        col_item:"", col_serving:"per serving",
-        calories:"Calories",
-        p:"Protein", f:"Fat", fi:"Fiber", m:"Moisture", a:"Ash", nfe:"Carb",
-        rights:"© 2025 albraichy — All rights reserved."
-      }
+      ar:{title:"حاسبة حصّة أكل القطط", inputs:"⚙️ إدخال البيانات", serving_label:"حجم الحصّة (غ)",
+          protein:"بروتين %", fat:"دهون %", fiber:"ألياف %", moisture:"رطوبة %", ash:"رماد %",
+          calc:"احسب", reset:"إعادة ضبط", results:"📊 النتائج", col_item:"", col_serving:"لكل حصة",
+          calories:"السعرات", p:"البروتين", f:"الدهون", fi:"الألياف", m:"الرطوبة", a:"الرماد", nfe:"الكارب",
+          rights:"© 2025 albraichy — جميع الحقوق محفوظة.", enter_serving:"رجاءً أدخل حجم الحصّة أولاً."},
+      en:{title:"Cat Food Serving Calculator", inputs:"⚙️ Inputs", serving_label:"Serving size (g)",
+          protein:"Protein %", fat:"Fat %", fiber:"Fiber %", moisture:"Moisture %", ash:"Ash %",
+          calc:"Calculate", reset:"Reset", results:"📊 Results", col_item:"", col_serving:"per serving",
+          calories:"Calories", p:"Protein", f:"Fat", fi:"Fiber", m:"Moisture", a:"Ash", nfe:"Carb",
+          rights:"© 2025 albraichy — All rights reserved.", enter_serving:"Please enter a serving size first."}
     };
-
-    // Helpers: parsing without changing what the user typed
     function normalizeDigits(str){
       if(!str) return '';
-      const map = {'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9',
-                   '۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9'};
-      return str.replace(/[٠-٩۰-۹]/g, d => map[d])
-                .replace(/,/g,'.').replace(/٫/g,'.').replace(/٬/g,'');
+      const map={'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9','۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9'};
+      return str.replace(/[٠-٩۰-۹]/g,d=>map[d]).replace(/,/g,'.').replace(/\u066B/g,'.');
     }
-    function parseEl(el){
-      const v = normalizeDigits(String(el.value||''));
-      const n = parseFloat(v);
-      return isFinite(n)? n : 0;
-    }
-    function byPct(s, p){ return s*(p/100); }
-    function fmt(x, d=1){ return isFinite(x)? Number(x).toFixed(d) : '—'; }
+    function parseEl(el){ const v=normalizeDigits(String(el.value||'')); const n=parseFloat(v); return isFinite(n)?n:0; }
+    function fmt(x,d=1){ return isFinite(x)?Number(x).toFixed(d):'—'; }
+    const ATW={protein:3.5,fat:8.5,carb:3.5};
 
-    // Language
     function setLang(lang){
-      const d = STR[lang] || STR.ar;
-      document.documentElement.lang = (lang==='ar'?'ar':'en');
-      document.documentElement.dir  = (lang==='ar'?'rtl':'ltr');
-      document.getElementById('btn-ar').classList.toggle('active', lang==='ar');
-      document.getElementById('btn-en').classList.toggle('active', lang==='en');
-      document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.getAttribute('data-i18n'); if(d[k]) el.textContent = d[k]; });
-      document.getElementById('rights').textContent = d.rights;
-      try{ localStorage.setItem('meow_lang', lang); }catch(e){}
+      const d=STR[lang]||STR.ar;
+      document.documentElement.lang=(lang==='ar'?'ar':'en');
+      document.documentElement.dir=(lang==='ar'?'rtl':'ltr');
+      ['btn-ar','btn-en'].forEach(id=>document.getElementById(id).classList.remove('active'));
+      document.getElementById(lang==='ar'?'btn-ar':'btn-en').classList.add('active');
+      document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.getAttribute('data-i18n'); if(d[k]) el.textContent=d[k]; });
+      document.getElementById('rights').textContent=d.rights;
+      try{ localStorage.setItem('meow_lang', lang);}catch(e){}
     }
 
-    // Core calc
-    const ATW = { protein:3.5, fat:8.5, carb:3.5 };
+    function showAlert(msg){
+      const area=document.getElementById('alertArea');
+      if(!area) return;
+      if(msg){ area.style.display='block'; area.textContent=msg; }
+      else { area.style.display='none'; area.textContent=''; }
+    }
+
     function remaining(){
       const ids=['protein','fat','fiber','moisture','ash'];
-      let total = 0;
-      ids.forEach(id=>{ const el=document.getElementById(id); total += parseEl(el); });
-      return 100 - total;
+      let t=0; ids.forEach(id=> t += parseEl(document.getElementById(id)));
+      return 100 - t;
     }
     function refreshRemain(){
-      const pill = document.getElementById('remain');
-      const left = remaining();
-      if(pill){
-        const val = isFinite(left)? Math.round(left) : 100;
-        pill.textContent = val + '%';
-        pill.classList.toggle('bad', left < 0); // red only when negative
-      }
-      const area = document.getElementById('alertArea');
-      if(area){
-        if(left < 0){
-          area.style.display='block';
-          area.textContent = (document.documentElement.lang==='ar')
-            ? 'مجموع النِّسَب لازم يكون ≤ 100%.'
-            : 'Total of percentages must be ≤ 100%.';
-        }else{
-          area.style.display='none'; area.textContent='';
-        }
-      }
+      const pill=document.getElementById('remain');
+      const left=remaining();
+      if(pill){ const val=isFinite(left)?Math.round(left):100; pill.textContent=val+'%'; pill.classList.toggle('bad', left<0); }
+      const s=parseEl(document.getElementById('servingTop'));
+      if(!(s>0)){ showAlert( STR[document.documentElement.lang].enter_serving ); }
+      else if(left<0){ showAlert( document.documentElement.lang==='ar'?'مجموع النِّسَب لازم يكون ≤ 100%.' : 'Total of percentages must be ≤ 100%.' ); }
+      else { showAlert(''); }
     }
     function calc(){
-      const s = parseEl(document.getElementById('servingTop'));
-      if(!(s>0)){
-        document.getElementById('servingTop').classList.add('invalid');
-        return;
-      }
-      const p = parseEl(document.getElementById('protein'));
-      const f = parseEl(document.getElementById('fat'));
-      const fi= parseEl(document.getElementById('fiber'));
-      const m = parseEl(document.getElementById('moisture'));
-      const a = parseEl(document.getElementById('ash'));
-      const nfe = Math.max(0, 100 - (p+f+fi+m+a));
-
-      const kcal100 = (p*ATW.protein) + (nfe*ATW.carb) + (f*ATW.fat);
-      const kcalServ = kcal100*(s/100);
-
-      document.getElementById('calServing').innerHTML = fmt(kcalServ) + ' <span class="unit">kcal</span>';
-      document.getElementById('gProtein').innerHTML   = fmt(byPct(s,p)) + ' <span class="unit">g</span>';
-      document.getElementById('gNfe').innerHTML       = fmt(byPct(s,nfe)) + ' <span class="unit">g</span>';
-      document.getElementById('gFat').innerHTML       = fmt(byPct(s,f)) + ' <span class="unit">g</span>';
-      document.getElementById('gFiber').innerHTML     = fmt(byPct(s,fi)) + ' <span class="unit">g</span>';
-      document.getElementById('gMoisture').innerHTML  = fmt(byPct(s,m)) + ' <span class="unit">g</span>';
-      document.getElementById('gAsh').innerHTML       = fmt(byPct(s,a)) + ' <span class="unit">g</span>';
+      const s=parseEl(document.getElementById('servingTop'));
+      if(!(s>0)){ document.getElementById('servingTop').classList.add('invalid'); showAlert(STR[document.documentElement.lang].enter_serving); return; }
+      const p=parseEl(document.getElementById('protein')), f=parseEl(document.getElementById('fat')), fi=parseEl(document.getElementById('fiber')), m=parseEl(document.getElementById('moisture')), a=parseEl(document.getElementById('ash'));
+      const nfe=Math.max(0, 100-(p+f+fi+m+a));
+      const kcal100=(p*ATW.protein)+(nfe*ATW.carb)+(f*ATW.fat);
+      const kcalServ=kcal100*(s/100);
+      document.getElementById('calServing').innerHTML=fmt(kcalServ)+' <span class="unit">kcal</span>';
+      document.getElementById('gProtein').innerHTML=fmt(s*(p/100))+' <span class="unit">g</span>';
+      document.getElementById('gNfe').innerHTML=fmt(s*(nfe/100))+' <span class="unit">g</span>';
+      document.getElementById('gFat').innerHTML=fmt(s*(f/100))+' <span class="unit">g</span>';
+      document.getElementById('gFiber').innerHTML=fmt(s*(fi/100))+' <span class="unit">g</span>';
+      document.getElementById('gMoisture').innerHTML=fmt(s*(m/100))+' <span class="unit">g</span>';
+      document.getElementById('gAsh').innerHTML=fmt(s*(a/100))+' <span class="unit">g</span>';
     }
     function resetAll(){
-      ['servingTop','protein','fat','fiber','moisture','ash'].forEach(id=>{ const el=document.getElementById(id); if(el){ el.value=''; el.classList.remove('invalid'); } });
-      ['gProtein','gNfe','gFat','gFiber','gMoisture','gAsh','calServing'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent='—'; });
-      const pill=document.getElementById('remain'); if(pill){ pill.textContent='100%'; pill.classList.remove('bad'); }
-      const area=document.getElementById('alertArea'); if(area){ area.style.display='none'; area.textContent=''; }
+      ['servingTop','protein','fat','fiber','moisture','ash'].forEach(id=>{const el=document.getElementById(id); if(el){el.value=''; el.classList.remove('invalid');}});
+      ['gProtein','gNfe','gFat','gFiber','gMoisture','gAsh','calServing'].forEach(id=>{const el=document.getElementById(id); if(el) el.textContent='—';});
+      const pill=document.getElementById('remain'); if(pill){pill.textContent='100%'; pill.classList.remove('bad');}
+      showAlert('');
     }
 
-    // Bindings
     document.getElementById('calc').addEventListener('click', ()=>{ refreshRemain(); if(remaining()>=0) calc(); });
     document.getElementById('reset').addEventListener('click', resetAll);
-    ['protein','fat','fiber','moisture','ash','servingTop'].forEach(id=>{
-      const el=document.getElementById(id); if(!el)return;
-      el.addEventListener('input', refreshRemain);
-      el.addEventListener('change', refreshRemain);
-      el.addEventListener('focus', ()=> el.classList.remove('invalid'));
-    });
+    ['protein','fat','fiber','moisture','ash','servingTop'].forEach(id=>{ const el=document.getElementById(id); if(!el)return; el.addEventListener('input', refreshRemain); el.addEventListener('change', refreshRemain); el.addEventListener('focus', ()=> el.classList.remove('invalid')); });
     document.getElementById('btn-ar').addEventListener('click', ()=>setLang('ar'));
     document.getElementById('btn-en').addEventListener('click', ()=>setLang('en'));
-    (function(){ let lang='ar'; try{ lang = localStorage.getItem('meow_lang')||''; }catch(e){} if(!lang){ const pref=(navigator.language||'en').toLowerCase(); lang=pref.startsWith('ar')?'ar':'en'; } setLang(lang); })();
+    (function(){ let lang='ar'; try{lang=localStorage.getItem('meow_lang')||'';}catch(e){} if(!lang){ const pref=(navigator.language||'en').toLowerCase(); lang=pref.startsWith('ar')?'ar':'en'; } setLang(lang); })();
     refreshRemain();
   </script>
 </body>

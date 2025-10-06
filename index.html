@@ -129,6 +129,19 @@ main {
   font-size: 12px;
   color: #64748b;
 }
+</style><style id="servingcard-ltr-fix">
+/* Force LTR order inside serving card when lang=en */
+html[lang="en"] #servingCard .serving-bar{display:grid !important; grid-template-columns:auto 1fr auto !important; direction:ltr !important}
+html[lang="en"] #servingCard .serving-bar #remain{order:1 !important}
+html[lang="en"] #servingCard .serving-bar #servingTop{order:2 !important}
+html[lang="en"] #servingCard .serving-bar label[for="servingTop"]{order:3 !important; text-align:left !important}
+</style><style id="sticky-footer-fix">
+/* Stick footer to the visual viewport bottom even on short pages */
+:root{ --footer-h: 32px; }
+html, body { height:auto !important; }
+body{ min-height:100dvh !important; display:flex !important; flex-direction:column !important; }
+main{ flex:1 0 auto !important; }
+footer#pageFooter{ margin-top:auto !important; }
 </style></head>
 <body>
 <header>
@@ -789,5 +802,37 @@ html[lang="en"] .serving-bar #remain{ order:1 !important }
 html[lang="en"] .serving-bar #servingTop{ order:2 !important }
 html[lang="en"] .serving-bar label[for="servingTop"]{ order:3 !important }
 </style>
-</body>
+<script id="remain-bad-threshold-fix">
+(function(){
+  const byId = (id)=>document.getElementById(id);
+  function setBad(rem){
+    const pill = byId('remain');
+    if(!pill) return;
+    // only mark bad if negative, not at 0
+    if(rem < 0){ pill.classList.add('bad'); } else { pill.classList.remove('bad'); }
+  }
+  // Patch existing updateRemaining if defined
+  const orig = window.updateRemaining;
+  window.updateRemaining = function(){
+    try{
+      if(typeof orig === 'function'){ orig(); }
+    }catch(_e){}
+    // recompute remaining safely from inputs
+    const ids = ['protein','fat','fiber','moisture','ash'];
+    let total = 0;
+    ids.forEach(id=>{
+      const el = document.getElementById(id);
+      if(!el) return;
+      const v = parseFloat((el.value||'').replace(/[^\d.]/g,''));
+      if(isFinite(v)) total += v;
+    });
+    const rem = 100 - total;
+    setBad(rem);
+  };
+  // Initial apply
+  document.addEventListener('input', window.updateRemaining, true);
+  document.addEventListener('DOMContentLoaded', window.updateRemaining);
+  window.updateRemaining();
+})();
+</script></body>
 </html>

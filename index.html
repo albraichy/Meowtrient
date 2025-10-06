@@ -601,5 +601,161 @@ html[lang="ar"] .serving-bar #remain{grid-column:3}
 })();
 </script>
 
+
+<!-- Patch 2: lang-aware serving bar flip + strict empty-fields validation + remove placeholders -->
+<script>
+(function(){
+  const $ = (s)=>document.querySelector(s);
+  const byId = (id)=>document.getElementById(id);
+
+  // find serving bar container and mark it for styling
+  const sEl = byId('servingTop');
+  let bar = null;
+  if(sEl){
+    // try a few parents to attach a class without changing DOM
+    bar = sEl.closest('.serving-bar') || sEl.closest('.servingRow') || sEl.parentElement?.parentElement || sEl.parentElement;
+    if(bar) bar.classList.add('serving-bar');
+    // remove placeholders (also from % fields)
+    sEl.removeAttribute('placeholder');
+  }
+  ['protein','fat','fiber','moisture','ash'].forEach(id=>{
+    const el = byId(id);
+    if(el) el.removeAttribute('placeholder');
+  });
+
+  // CSS order per language
+  const style = document.createElement('style');
+  style.textContent = `
+  .serving-bar{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
+  /* Arabic: label | input | indicator */
+  html[lang="ar"] .serving-bar .label-serving{order:1}
+  html[lang="ar"] .serving-bar #servingTop{order:2}
+  html[lang="ar"] .serving-bar #remain{order:3}
+  /* English: indicator | input | label */
+  html[lang="en"] .serving-bar #remain{order:1}
+  html[lang="en"] .serving-bar #servingTop{order:2}
+  html[lang="en"] .serving-bar .label-serving{order:3}
+  `;
+  document.head.appendChild(style);
+
+  // ensure label has a stable class used above
+  const label = document.querySelector('label[for="servingTop"]');
+  if(label) label.classList.add('label-serving');
+
+  // helpers
+  const digitMap = {'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9','٫':'.','،':'.'};
+  const normDigits = s => String(s||'').replace(/[٠-٩٫،]/g, ch => digitMap[ch] ?? ch).trim();
+  const parseEl = el => { const v = normDigits(el.value); const n = parseFloat(v); return (isFinite(n)? n : NaN); };
+
+  const fields = ['protein','fat','fiber','moisture','ash'].map(id=>byId(id)).filter(Boolean);
+  const remain = byId('remain');
+  const alertArea = byId('alertArea');
+  const calcBtn = byId('calc');
+
+  function showAlert(msg){ if(alertArea){ alertArea.style.display='block'; alertArea.textContent=msg; } }
+  function clearAlert(){ if(alertArea){ alertArea.style.display='none'; alertArea.textContent=''; } }
+  // prevent blocking alerts
+  window.alert = function(msg){ showAlert(String(msg||'')); };
+
+  function sumPerc(){
+    let t=0;
+    for(const el of fields){
+      const v = parseEl(el);
+      if(!isNaN(v)) t+=v;
+    }
+    return t;
+  }
+  function updateRemain(){
+    if(!remain) return;
+    const left = 100 - sumPerc();
+    const val = isFinite(left)? Math.round(left) : 100;
+    remain.textContent = val + '%';
+    remain.classList.toggle('bad', left <= 0);
+  }
+
+  [...fields, sEl].forEach(el=>{
+    if(!el) return;
+    el.addEventListener('input', ()=>{
+      el.value = normDigits(el.value).replace(/[^0-9.]/g,'');
+      updateRemain();
+      clearAlert();
+      el.classList.remove('invalid');
+    });
+    el.addEventListener('focus', ()=> el.classList.remove('invalid'));
+  });
+  updateRemain();
+
+  function validateNotEmptyNumeric(){
+    let ok=true;
+    // serving: required and >0
+    const S = parseEl(sEl);
+    if(!(S>0)){ ok=false; sEl.classList.add('invalid'); }
+    // all % fields required numeric
+    for(const el of fields){
+      const v = parseEl(el);
+      if(isNaN(v)){ ok=false; el.classList.add('invalid'); }
+    }
+    if(!ok){
+      showAlert(document.documentElement.lang==='ar' ? 'رجاءً املأ كل الخانات بأرقام صحيحة.' : 'Please fill all fields with valid numbers.');
+      return false;
+    }
+    // total ≤ 100
+    const total = sumPerc();
+    if(!(isFinite(total) && total <= 100)){
+      fields.forEach(el=>el.classList.add('invalid'));
+      showAlert(document.documentElement.lang==='ar' ? 'مجموع النِّسَب لازم يكون ≤ 100%.' : 'Total of percentages must be ≤ 100%.');
+      return false;
+    }
+    clearAlert();
+    return true;
+  }
+
+  function compute(e){
+    if(!validateNotEmptyNumeric()){ e && e.preventDefault(); return; }
+    const S = parseEl(sEl);
+    const p = parseEl(byId('protein'));
+    const f = parseEl(byId('fat'));
+    const fi= parseEl(byId('fiber'));
+    const m = parseEl(byId('moisture'));
+    const a = parseEl(byId('ash'));
+
+    const nfe = Math.max(0, 100 - (p+f+fi+m+a));
+    const kcal100 = (p*3.5) + (nfe*3.5) + (f*8.5);
+    const kcalServing = kcal100*(S/100);
+
+    function g(x){ return S*(x/100); }
+    function setVal(id, val, unit){
+      const el = byId(id);
+      if(el) el.innerHTML = (isFinite(val)? val.toFixed(1) : '—') + (unit? ` <span class="unit">${unit}</span>` : '');
+    }
+
+    setVal('calServing', kcalServing, 'kcal');
+    setVal('gProtein',   g(p), 'g');
+    setVal('gNfe',       g(nfe), 'g');
+    setVal('gFat',       g(f), 'g');
+    setVal('gFiber',     g(fi), 'g');
+    setVal('gMoisture',  g(m), 'g');
+    setVal('gAsh',       g(a), 'g');
+  }
+
+  const old = byId('calc');
+  if(old){
+    const clone = old.cloneNode(true);
+    old.parentNode.replaceChild(clone, old);
+    clone.addEventListener('click', compute);
+  }
+
+  // when language toggles, CSS takes care of order; we just force a reflow
+  const btnAr = byId('btn-ar'), btnEn = byId('btn-en');
+  [btnAr, btnEn].forEach(b=> b && b.addEventListener('click', ()=>{ document.body.offsetHeight; }));
+})();
+</script>
+<style>
+/* red invalid both border and bg */
+input.invalid{ border-color:#ff4d4f !important; background-color:rgba(255,77,79,.12) !important; }
+#alertArea{ display:none; margin-top:8px; padding:10px 12px; border-radius:12px; background:#5a1515; color:#ffd7d7; font-weight:600; }
+.unit{ opacity:.85; font-size:.9em }
+</style>
+
 </body>
 </html>

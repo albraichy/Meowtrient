@@ -455,5 +455,151 @@ html[lang="ar"] .serving-bar #remain{grid-column:3}
     .forEach(hookCalc);
 })();
 </script>
+
+<!-- Meowtrition minimal patch: validation + units + lang-aware serving bar -->
+<script>
+(function(){
+  const $ = (s)=>document.querySelector(s);
+  const byId = (id)=>document.getElementById(id);
+
+  // 1) Strong language-aware serving bar mapping (override any earlier rules)
+  const style = document.createElement('style');
+  style.textContent = `
+  html[lang="en"] .serving-bar { display:grid !important; grid-template-columns:auto 1fr auto !important; gap:8px }
+  html[lang="en"] .serving-bar #remain{ grid-column:1 !important }
+  html[lang="en"] .serving-bar input#servingTop{ grid-column:2 !important }
+  html[lang="en"] .serving-bar label[for="servingTop"]{ grid-column:3 !important; white-space:nowrap }
+  html[lang="ar"] .serving-bar { display:grid !important; grid-template-columns:auto 1fr auto !important; gap:8px }
+  html[lang="ar"] .serving-bar label[for="servingTop"]{ grid-column:1 !important; white-space:nowrap; text-align:right }
+  html[lang="ar"] .serving-bar input#servingTop{ grid-column:2 !important }
+  html[lang="ar"] .serving-bar #remain{ grid-column:3 !important }
+  `;
+  document.head.appendChild(style);
+
+  // 2) Helpers for Arabic numerals
+  const digitMap = {'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9','٫':'.','،':'.'};
+  function normalizeDigits(str){
+    return String(str || '').replace(/[٠-٩٫،]/g, ch => digitMap[ch] ?? ch).trim();
+  }
+  function parseNumEl(el){
+    const v = normalizeDigits(el.value);
+    const n = parseFloat(v);
+    return (isFinite(n)? n : NaN);
+  }
+
+  // 3) Elements
+  const sEl = byId('servingTop');
+  const fields = ['protein','fat','fiber','moisture','ash'].map(id=>byId(id)).filter(Boolean);
+  const remain = byId('remain');
+  const alertArea = byId('alertArea');
+  const calcBtn = byId('calc');
+
+  // 4) In-page alert (no modals)
+  function showAlert(msg){
+    if(!alertArea) return;
+    alertArea.style.display = 'block';
+    alertArea.textContent = msg;
+  }
+  function clearAlert(){
+    if(!alertArea) return;
+    alertArea.style.display = 'none';
+    alertArea.textContent='';
+  }
+  // Prevent native alerts
+  window.alert = function(msg){ showAlert(String(msg||'')); };
+
+  // 5) Live remaining pill
+  function sumPerc(){
+    let total = 0;
+    for(const el of fields){
+      const v = parseNumEl(el);
+      if(!isNaN(v)) total += v;
+    }
+    return total;
+  }
+  function updateRemain(){
+    const left = 100 - sumPerc();
+    if(remain){
+      const val = isFinite(left) ? Math.round(left) : 100;
+      remain.textContent = val + '%';
+      remain.classList.toggle('bad', left <= 0);
+    }
+  }
+  fields.concat([sEl]).forEach(el=>{
+    if(!el) return;
+    el.addEventListener('input', ()=>{
+      // allow Arabic digits
+      const before = el.value;
+      const norm = normalizeDigits(before).replace(/[^0-9.]/g,'');
+      if(before !== norm) el.value = norm;
+      updateRemain();
+      clearAlert();
+    });
+    el.addEventListener('focus', ()=> el.classList.remove('invalid'));
+  });
+  updateRemain();
+
+  // 6) Single, clean calculate handler with units
+  function compute(e){
+    clearAlert();
+    // serving > 0
+    const S = parseNumEl(sEl);
+    if(!(S>0)){
+      if(sEl){ sEl.classList.add('invalid'); sEl.scrollIntoView({block:'nearest', behavior:'smooth'}); }
+      showAlert(document.documentElement.lang==='ar' ? 'حجم الحصّة لازم يكون رقم صحيح (> 0).' : 'Serving size must be > 0.');
+      e && e.preventDefault();
+      return;
+    }
+    // total ≤ 100
+    const total = sumPerc();
+    if(!(isFinite(total) && total <= 100)){
+      fields.forEach(el=>el.classList.add('invalid'));
+      showAlert(document.documentElement.lang==='ar' ? 'مجموع النِّسَب لازم يكون ≤ 100%.' : 'Total of percentages must be ≤ 100%.');
+      e && e.preventDefault();
+      return;
+    }
+
+    // values
+    const p = parseNumEl(byId('protein'))   || 0;
+    const f = parseNumEl(byId('fat'))       || 0;
+    const fi= parseNumEl(byId('fiber'))     || 0;
+    const m = parseNumEl(byId('moisture'))  || 0;
+    const a = parseNumEl(byId('ash'))       || 0;
+    const nfe = Math.max(0, 100 - (p+f+fi+m+a));
+
+    // kcal by Modified Atwater
+    const kcal100 = (p*3.5) + (nfe*3.5) + (f*8.5);
+    const kcalServing = kcal100*(S/100);
+
+    function g(x){ return S*(x/100); }
+    function setVal(id, val, unit){
+      const el = byId(id);
+      if(!el) return;
+      el.innerHTML = (isFinite(val)? val.toFixed(1) : '—') + (unit? ` <span class="unit">${unit}</span>` : '');
+    }
+
+    setVal('calServing', kcalServing, 'kcal');
+    setVal('gProtein',   g(p), 'g');
+    setVal('gNfe',       g(nfe), 'g');
+    setVal('gFat',       g(f), 'g');
+    setVal('gFiber',     g(fi), 'g');
+    setVal('gMoisture',  g(m), 'g');
+    setVal('gAsh',       g(a), 'g');
+  }
+
+  // Remove old calc listeners by cloning node
+  if(calcBtn){
+    const clone = calcBtn.cloneNode(true);
+    calcBtn.parentNode.replaceChild(clone, calcBtn);
+    clone.addEventListener('click', compute);
+  }
+
+  // Keep everything in sync on language toggle (re-apply serving bar CSS by lang attribute)
+  const btnAr = byId('btn-ar'), btnEn = byId('btn-en');
+  function refreshLayout(){ /* CSS lang rules handle order; just force reflow */ document.body.offsetHeight; }
+  [btnAr, btnEn].forEach(b=> b && b.addEventListener('click', refreshLayout));
+})();
+</script>
+
 </body>
 </html>

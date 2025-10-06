@@ -25,7 +25,7 @@
     h1{margin:0; font-size:clamp(16px,3.2vw,24px); font-weight:800; letter-spacing:.2px;
       background:linear-gradient(90deg,var(--text),var(--hx) 60%,var(--text)); -webkit-background-clip:text; background-clip:text; color:transparent}
     .topbar{display:flex; justify-content:center; align-items:center; gap:8px; margin-top:6px}
-    .lang-toggle{display:inline-flex; gap:4px; align-items:center; border:1px solid var(--line); border-radius:999px; padding:3px 6px; font-size:11px; background:var(--card); direction:ltr}
+    .lang-toggle{display:inline-flex; gap:4px; align-items:center; border:1px solid var(--line); border-radius:999px; padding:3px 6px; font-size:11px; background:var(--card); direction:ltr; direction:ltr}
     .lang-toggle button{border:none; background:transparent; padding:3px 6px; border-radius:999px; cursor:pointer; font-weight:800; color:var(--muted)}
     .lang-toggle button.active{ background:var(--line); color:var(--text) }
 
@@ -61,6 +61,16 @@
     .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2)); color:white; border:none}
 
     footer{padding:6px 0 8px; text-align:center; color:#64748b; font-size:12px; margin-top:8px}
+  
+    .unit{opacity:.8; font-size:12px; margin-inline-start:6px}
+    .invalid{border-color:#ef4444 !important; box-shadow:0 0 0 3px #ef444422 !important}
+    .remain-wrap{display:flex; align-items:center; gap:8px}
+    .remain-pill{min-width:64px; padding:6px 10px; border-radius:999px; font-weight:800; text-align:center;
+      background:#052e1a; color:#bbf7d0; border:1px solid #064e3b}
+    .remain-pill.bad{background:#3b0a0a; color:#fecaca; border-color:#7f1d1d}
+    .tooltip{display:none; margin-top:6px; font-size:12px; color:#fecaca; background:#3b0a0a; border:1px solid #7f1d1d; padding:6px 8px; border-radius:8px}
+    .tooltip.show{display:block}
+    .serving-bar input{max-width:220px}
   </style>
 </head>
 <body>
@@ -69,8 +79,8 @@
     <div class="topbar">
       <div></div>
       <div class="lang-toggle" role="tablist" aria-label="Language">
-        <button id="btn-en" data-lang="en" role="tab" aria-selected="false">English</button>
         <button id="btn-ar" class="active" data-lang="ar" role="tab" aria-selected="true">العربية</button>
+        <button id="btn-en" data-lang="en" role="tab" aria-selected="false">English</button>
       </div>
     </div>
   </header>
@@ -79,7 +89,7 @@
     <!-- Serving size bar -->
     <div class="serving-bar">
       <label for="servingTop" data-i18n="serving_label">حجم الحصّة (غ)</label>
-      <input id="servingTop" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" type="text" placeholder="50">
+      <input id="servingTop"><div class="remain-wrap"><div id="remain" class="remain-pill">100%</div><div id="remainTip" class="tooltip" data-i18n="remain_tip">مجموع النِّسَب لازم يكون أقل من 100%</div></div inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" type="text" placeholder="50">
     </div>
 
     <div class="grid">
@@ -235,6 +245,59 @@
     document.getElementById('btn-ar').addEventListener('click', ()=>setLang('ar'));
     document.getElementById('btn-en').addEventListener('click', ()=>setLang('en'));
     (()=>{let lang=(()=>{try{return localStorage.getItem('meow_lang')||''}catch(e){return ''}})(); if(!lang){const pref=(navigator.language||navigator.userLanguage||'en').toLowerCase(); lang = pref.startsWith('ar')?'ar':'en';} setLang(lang);})();
-  </script>
+  
+    function fmt(x,d=1){return isFinite(x)?Number(x).toFixed(d):'—'}
+    function byPct(s,pct){return s*(pct/100)}
+    function nfePercent(p,f,fi,m,a){return 100-((p||0)+(f||0)+(fi||0)+(m||0)+(a||0))}
+    function markInvalid(el){el.classList.add('invalid'); el.addEventListener('focus', ()=>el.classList.remove('invalid'), {once:true});}
+    function updateRemaining(){
+      const p=parseNumEl(document.getElementById('protein'));
+      const f=parseNumEl(document.getElementById('fat'));
+      const fi=parseNumEl(document.getElementById('fiber'));
+      const m=parseNumEl(document.getElementById('moisture'));
+      const a=parseNumEl(document.getElementById('ash'));
+      const rem = 100 - (p+f+fi+m+a);
+      const pill = document.getElementById('remain');
+      const tip  = document.getElementById('remainTip');
+      pill.textContent = (isFinite(rem)?Math.max(rem,-999):100).toFixed(0) + '%';
+      const bad = rem <= 0;
+      pill.classList.toggle('bad', bad);
+      tip.classList.toggle('show', bad);
+    }
+    ['protein','fat','fiber','moisture','ash'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el){ el.addEventListener('input', updateRemaining); el.addEventListener('change', updateRemaining); }
+    });
+    function calc(){
+      const sEl=document.getElementById('servingTop');
+      const inputs=['protein','fat','fiber','moisture','ash'].map(id=>document.getElementById(id));
+      const s=parseNumEl(sEl);
+      let ok=true;
+      if(!(s>0)){ markInvalid(sEl); ok=false; }
+      let vals={};
+      inputs.forEach(el=>{const v=normalizeDigits(el.value); if(v===''){ markInvalid(el); ok=false; } vals[el.id]=parseNumEl(el);});
+      if(!ok){return;}
+      const rem = 100 - (vals.protein+vals.fat+vals.fiber+vals.moisture+vals.ash);
+      updateRemaining();
+      if(rem<=0){ return; }
+      const kcal100=(vals.protein*3.5)+(rem*3.5)+(vals.fat*8.5);
+      const ks=kcal100*(s/100);
+      document.getElementById('calServing').innerHTML = fmt(ks) + ' <span class=\"unit\">kcal</span>';
+      document.getElementById('gProtein').innerHTML = fmt(byPct(s,vals.protein)) + ' <span class=\"unit\">g</span>';
+      document.getElementById('gNfe').innerHTML     = fmt(byPct(s,rem))          + ' <span class=\"unit\">g</span>';
+      document.getElementById('gFat').innerHTML     = fmt(byPct(s,vals.fat))     + ' <span class=\"unit\">g</span>';
+      document.getElementById('gFiber').innerHTML   = fmt(byPct(s,vals.fiber))   + ' <span class=\"unit\">g</span>';
+      document.getElementById('gMoisture').innerHTML= fmt(byPct(s,vals.moisture))+ ' <span class=\"unit\">g</span>';
+      document.getElementById('gAsh').innerHTML     = fmt(byPct(s,vals.ash))     + ' <span class=\"unit\">g</span>';
+    }
+    function resetAll(){
+      ['servingTop','protein','fat','fiber','moisture','ash'].forEach(id=>{const el=document.getElementById(id); if(el){el.value=''; el.classList.remove('invalid');}});
+      ['gProtein','gNfe','gFat','gFiber','gMoisture','gAsh','calServing'].forEach(id=>{const el=document.getElementById(id); if(el){el.textContent='—';}});
+      const pill=document.getElementById('remain'); if(pill){pill.textContent='100%'; pill.classList.remove('bad');}
+      const tip=document.getElementById('remainTip'); if(tip){tip.classList.remove('show');}
+    }
+    try{document.getElementById('calc').onclick=calc; document.getElementById('reset').onclick=resetAll; updateRemaining();}catch(e){}
+
+</script>
 </body>
 </html>

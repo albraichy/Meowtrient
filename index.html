@@ -25,18 +25,15 @@
     h1{margin:0; font-size:clamp(16px,3.2vw,24px); font-weight:800; letter-spacing:.2px;
       background:linear-gradient(90deg,var(--text),var(--hx) 60%,var(--text)); -webkit-background-clip:text; background-clip:text; color:transparent}
     .topbar{display:flex; justify-content:center; align-items:center; gap:8px; margin-top:6px}
-    .lang-toggle{display:inline-flex; gap:4px; align-items:center; border:1px solid var(--line); border-radius:999px; padding:3px 6px; font-size:11px; background:var(--card); direction:ltr; direction:ltr}
+    .lang-toggle{display:inline-flex; gap:4px; align-items:center; border:1px solid var(--line); border-radius:999px; padding:3px 6px; font-size:11px; background:var(--card); direction:ltr}
     .lang-toggle button{border:none; background:transparent; padding:3px 6px; border-radius:999px; cursor:pointer; font-weight:800; color:var(--muted)}
     .lang-toggle button.active{ background:var(--line); color:var(--text) }
 
     main{ width:min(960px,96%); margin:8px auto 10px; }
 
     /* Serving bar above cards */
-    .serving-bar{
-      direction:ltr; display:flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--line);
-      border-radius:12px; padding:8px 10px; margin-bottom:8px;
-    }
-    .serving-bar label{direction:rtl; text-align:right; font-weight:800; font-size:13px; white-space:nowrap}
+    
+    .serving-bar label{font-weight:800; font-size:13px; white-space:nowrap}
     .serving-bar input{
       flex:1; padding:8px 10px; border-radius:10px; border:1px solid var(--ring); background:transparent; font-size:14px; color:var(--text);
     }
@@ -62,15 +59,36 @@
 
     footer{padding:6px 0 8px; text-align:center; color:#64748b; font-size:12px; margin-top:8px}
   
-    .unit{opacity:.8; font-size:12px; margin-inline-start:6px}
-    .invalid{border-color:#ef4444 !important; box-shadow:0 0 0 3px #ef444422 !important}
-    .remain-wrap{display:flex; align-items:center; gap:8px}
     .remain-pill{min-width:64px; padding:6px 10px; border-radius:999px; font-weight:800; text-align:center;
       background:#052e1a; color:#bbf7d0; border:1px solid #064e3b}
     .remain-pill.bad{background:#3b0a0a; color:#fecaca; border-color:#7f1d1d}
-    .tooltip{display:none; position:absolute; inset-block-start:100%; inset-inline-start:0; transform:translateY(6px); font-size:12px; color:#fecaca; background:#3b0a0a; border:1px solid #7f1d1d; padding:6px 8px; border-radius:8px}
+    .tooltip{display:none; position:absolute; inset-block-start:100%; inset-inline-start:0; transform:translateY(6px);
+      font-size:12px; color:#fecaca; background:#3b0a0a; border:1px solid #7f1d1d; padding:6px 8px; border-radius:8px; z-index:10}
     .tooltip.show{display:block}
-    .serving-bar input{max-width:220px}
+    .invalid{border-color:#ef4444 !important; box-shadow:0 0 0 3px #ef444422 !important}
+    .serving-bar{position:relative}
+    .unit{opacity:.8; font-size:12px; margin-inline-start:6px}
+
+  
+
+  
+/* Language-aware serving bar layout */
+.serving-bar{position:relative; display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:8px}
+/* Default (English/LTR): [pill][input][label] */
+.serving-bar #remain{grid-column:1}
+.serving-bar input#servingTop{grid-column:2}
+.serving-bar label[for="servingTop"]{grid-column:3; white-space:nowrap}
+/* Arabic (RTL): [label][input][pill] */
+html[lang="ar"] .serving-bar label[for="servingTop"]{grid-column:1; text-align:right}
+html[lang="ar"] .serving-bar input#servingTop{grid-column:2}
+html[lang="ar"] .serving-bar #remain{grid-column:3}
+
+  
+/* Force single-row layout & tidy label */
+.serving-bar{grid-auto-flow:column; grid-auto-columns:max-content}
+.serving-bar label[for="servingTop"]{margin:0; align-self:center; display:block}
+.serving-bar input#servingTop{width:100%}
+
   </style>
 </head>
 <body>
@@ -86,7 +104,7 @@
 
   <main>
     <!-- Serving size bar -->
-    <div class="serving-bar"><div id="remain" class="remain-pill">100%</div><input type="text" id="servingTop" inputmode="decimal"><label for="servingTop" data-i18n="serving_label">حجم الحصّة (غ)</label><div id="remainTip" class="tooltip" data-i18n="remain_tip">مجموع النِّسَب لازم يكون أقل من 100%</div></div>
+    <div class="serving-bar"><div id="remain" class="remain-pill">100%</div><input id="servingTop" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" placeholder="50"><label for="servingTop" data-i18n="serving_label">حجم الحصّة (غ)</label><div id="remainTip" class="tooltip" data-i18n="remain_tip">مجموع النِّسَب لازم يكون أقل من 100%</div></div>
 
     <div class="grid">
       <!-- Right: inputs (percentages only) -->
@@ -95,27 +113,27 @@
         <div class="two">
           <div>
             <label for="protein" data-i18n="protein">بروتين %</label>
-            <input type="text" id="protein" inputmode="decimal" placeholder="10">
+            <input id="protein" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" placeholder="10">
           </div>
           <div>
             <label for="fat" data-i18n="fat">دهون %</label>
-            <input type="text" id="fat" inputmode="decimal" placeholder="5">
+            <input id="fat" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" placeholder="5">
           </div>
         </div>
         <div class="two" style="margin-top:6px">
           <div>
             <label for="fiber" data-i18n="fiber">ألياف %</label>
-            <input type="text" id="fiber" inputmode="decimal" placeholder="1.5">
+            <input id="fiber" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" placeholder="1.5">
           </div>
           <div>
             <label for="moisture" data-i18n="moisture">رطوبة %</label>
-            <input type="text" id="moisture" inputmode="decimal" placeholder="78">
+            <input id="moisture" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" placeholder="78">
           </div>
         </div>
         <div class="two" style="margin-top:6px">
           <div>
             <label for="ash" data-i18n="ash">رماد %</label>
-            <input type="text" id="ash" inputmode="decimal" placeholder="2.5">
+            <input id="ash" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" placeholder="2.5">
           </div>
         </div>
       </section>
@@ -242,67 +260,63 @@
     document.getElementById('btn-en').addEventListener('click', ()=>setLang('en'));
     (()=>{let lang=(()=>{try{return localStorage.getItem('meow_lang')||''}catch(e){return ''}})(); if(!lang){const pref=(navigator.language||navigator.userLanguage||'en').toLowerCase(); lang = pref.startsWith('ar')?'ar':'en';} setLang(lang);})();
   
-    function fmt(x,d=1){return isFinite(x)?Number(x).toFixed(d):'—'}
-    function byPct(s,pct){return s*(pct/100)}
-    function nfePercent(p,f,fi,m,a){return 100-((p||0)+(f||0)+(fi||0)+(m||0)+(a||0))}
-    function markInvalid(el){el.classList.add('invalid'); el.addEventListener('focus', ()=>el.classList.remove('invalid'), {once:true});}
-    function updateRemaining(){
-  function val(id){ const el=document.getElementById(id); return el?parseNumEl(el):0; }
-  const rem = 100 - (val('protein')+val('fat')+val('fiber')+val('moisture')+val('ash'));
-  const pill = document.getElementById('remain');
-  const tip  = document.getElementById('remainTip');
-  if(pill){ pill.textContent=(isFinite(rem)?Math.max(rem,-999):100).toFixed(0)+'%'; pill.classList.toggle('bad', rem<=0); }
-  if(tip){ tip.classList.toggle('show', rem<=0); }
-}
-  const rem = 100 - (val('protein')+val('fat')+val('fiber')+val('moisture')+val('ash'));
-  const pill = document.getElementById('remain');
-  const tip  = document.getElementById('remainTip');
-  if(pill){ pill.textContent = (isFinite(rem)?Math.max(rem,-999):100).toFixed(0) + '%';
-            pill.classList.toggle('bad', rem <= 0); }
-  if(tip){ tip.classList.toggle('show', rem <= 0); }
-}
-    ['protein','fat','fiber','moisture','ash'].forEach(id=>{
-      const el=document.getElementById(id);
-      if(el){ el.addEventListener('input', updateRemaining); el.addEventListener('change', updateRemaining); }
-    });
-    function calc(){
-      const sEl=document.getElementById('servingTop');
-      const inputs=['protein','fat','fiber','moisture','ash'].map(id=>document.getElementById(id));
-      const s=parseNumEl(sEl);
-      let ok=true;
-      if(!(s>0)){ markInvalid(sEl); ok=false; }
-      let vals={};
-      inputs.forEach(el=>{const v=normalizeDigits(el.value); if(v===''){ markInvalid(el); ok=false; } vals[el.id]=parseNumEl(el);});
-      if(!ok){return;}
-      const rem = 100 - (vals.protein+vals.fat+vals.fiber+vals.moisture+vals.ash);
-      updateRemaining();
-      if(rem<=0){ return; }
-      const kcal100=(vals.protein*3.5)+(rem*3.5)+(vals.fat*8.5);
-      const ks=kcal100*(s/100);
-      document.getElementById('calServing').innerHTML = fmt(ks) + ' <span class=\"unit\">kcal</span>';
-      document.getElementById('gProtein').innerHTML = fmt(byPct(s,vals.protein)) + ' <span class=\"unit\">g</span>';
-      document.getElementById('gNfe').innerHTML     = fmt(byPct(s,rem))          + ' <span class=\"unit\">g</span>';
-      document.getElementById('gFat').innerHTML     = fmt(byPct(s,vals.fat))     + ' <span class=\"unit\">g</span>';
-      document.getElementById('gFiber').innerHTML   = fmt(byPct(s,vals.fiber))   + ' <span class=\"unit\">g</span>';
-      document.getElementById('gMoisture').innerHTML= fmt(byPct(s,vals.moisture))+ ' <span class=\"unit\">g</span>';
-      document.getElementById('gAsh').innerHTML     = fmt(byPct(s,vals.ash))     + ' <span class=\"unit\">g</span>';
-    }
-    function resetAll(){
-      ['servingTop','protein','fat','fiber','moisture','ash'].forEach(id=>{const el=document.getElementById(id); if(el){el.value=''; el.classList.remove('invalid');}});
-      ['gProtein','gNfe','gFat','gFiber','gMoisture','gAsh','calServing'].forEach(id=>{const el=document.getElementById(id); if(el){el.textContent='—';}});
-      const pill=document.getElementById('remain'); if(pill){pill.textContent='100%'; pill.classList.remove('bad');}
-      const tip=document.getElementById('remainTip'); if(tip){tip.classList.remove('show');}
-    }
-    try{document.getElementById('calc').onclick=calc; document.getElementById('reset').onclick=resetAll; updateRemaining();}catch(e){}
+// === overrides (non-destructive) ===
+(function(){
+  const $ = s=>document.querySelector(s);
+  function fmt(x){return isFinite(x)?Number(x).toFixed(1):'—'}
+  function byPct(s,p){return s*(p/100)}
+  function remPct(p,f,fi,m,a){return 100-((p||0)+(f||0)+(fi||0)+(m||0)+(a||0))}
 
+  const sEl = document.getElementById('servingTop');
+  const fields = ['protein','fat','fiber','moisture','ash'].map(id=>document.getElementById(id));
 
-document.addEventListener('DOMContentLoaded', function(){
-  ['protein','fat','fiber','moisture','ash'].forEach(id=>{
-    const el = document.getElementById(id);
-    if(el){ el.addEventListener('input', updateRemaining); el.addEventListener('change', updateRemaining); }
+  function markInvalid(el){el.classList.add('invalid'); el.addEventListener('focus',()=>el.classList.remove('invalid'),{once:true});}
+
+  window.updateRemaining = function(){
+    const vals = Object.fromEntries(fields.map(el=>[el.id, parseNumEl(el)]));
+    const rem = remPct(vals.protein, vals.fat, vals.fiber, vals.moisture, vals.ash);
+    const pill = document.getElementById('remain');
+    const tip  = document.getElementById('remainTip');
+    if(pill){ pill.textContent=(isFinite(rem)?Math.max(rem,-999):100).toFixed(0)+'%'; pill.classList.toggle('bad', rem<=0); }
+    if(tip){ tip.classList.toggle('show', rem<=0); }
+  };
+
+  window.calc = function(){
+    let ok=true;
+    const s = parseNumEl(sEl);
+    if(!(s>0)){ markInvalid(sEl); ok=false; }
+    const vals = {};
+    fields.forEach(el=>{ const raw=el.value.trim(); if(raw===''){ markInvalid(el); ok=false; } vals[el.id]=parseNumEl(el); });
+    const rem = remPct(vals.protein, vals.fat, vals.fiber, vals.moisture, vals.ash);
+    updateRemaining();
+    if(!ok || rem<=0){ return; }
+
+    const kcal100 = (vals.protein*3.5) + (rem*3.5) + (vals.fat*8.5);
+    const kcalServing = kcal100*(s/100);
+
+    document.getElementById('calServing').innerHTML = fmt(kcalServing) + ' <span class="unit">kcal</span>';
+    document.getElementById('gProtein').innerHTML   = fmt(byPct(s, vals.protein)) + ' <span class="unit">g</span>';
+    document.getElementById('gNfe').innerHTML       = fmt(byPct(s, rem))          + ' <span class="unit">g</span>';
+    document.getElementById('gFat').innerHTML       = fmt(byPct(s, vals.fat))     + ' <span class="unit">g</span>';
+    document.getElementById('gFiber').innerHTML     = fmt(byPct(s, vals.fiber))   + ' <span class="unit">g</span>';
+    document.getElementById('gMoisture').innerHTML  = fmt(byPct(s, vals.moisture))+ ' <span class="unit">g</span>';
+    document.getElementById('gAsh').innerHTML       = fmt(byPct(s, vals.ash))     + ' <span class="unit">g</span>';
+  };
+
+  window.resetAll = function(){
+    sEl.value='';
+    fields.forEach(el=>{el.value=''; el.classList.remove('invalid');});
+    ['calServing','gProtein','gNfe','gFat','gFiber','gMoisture','gAsh'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent='—'; });
+    const pill=document.getElementById('remain'); if(pill){ pill.textContent='100%'; pill.classList.remove('bad'); }
+    const tip=document.getElementById('remainTip'); if(tip){ tip.classList.remove('show'); }
+  };
+
+  // Bind live update
+  document.addEventListener('DOMContentLoaded', ()=>{
+    fields.forEach(el=>{ el.addEventListener('input', updateRemaining); el.addEventListener('change', updateRemaining); });
+    updateRemaining();
   });
-  updateRemaining();
-});
+})();
 </script>
 </body>
 </html>

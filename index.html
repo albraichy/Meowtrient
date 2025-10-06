@@ -1,19 +1,21 @@
 <!DOCTYPE html>
-
-<html dir="rtl" lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>حاسبة حصّة أكل القطط</title>
-<style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>حاسبة حصّة أكل القطط</title>
+  <style>
     :root{
       --bg:#0b1120; --card:#0b1220; --ring:#334155; --text:#e5e7eb; --muted:#94a3b8;
-      --hx:#a7f3d0; --accent:#22c55e; --accent2:#10b981; --line:#1f2937; --result-bg:#0a0f1a; --table-head:#0b1325;
+      --hx:#a7f3d0; --accent:#22c55e; --accent2:#10b981; --line:#1f2937; --table-head:#0b1325;
+      --good-bg:#052e1a; --good-fg:#bbf7d0; --good-br:#064e3b;
+      --bad-bg:#3b0a0a; --bad-fg:#fecaca; --bad-br:#7f1d1d;
     }
     @media (prefers-color-scheme: light){
       :root{
         --bg:#f6f7fb; --card:#ffffff; --ring:#d1d5db; --text:#0f172a; --muted:#475569;
-        --hx:#0ea5e9; --accent:#16a34a; --accent2:#10b981; --line:#e5e7eb; --result-bg:#f8fafc; --table-head:#f1f5f9;
+        --hx:#0ea5e9; --accent:#16a34a; --accent2:#10b981; --line:#e5e7eb; --table-head:#f1f5f9;
+        --good-bg:#052e1a; --good-fg:#065f46; --good-br:#10b981;
       }
     }
     *{box-sizing:border-box}
@@ -21,6 +23,7 @@
       margin:0; background:var(--bg); color:var(--text);
       font-family:"Cairo", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
       line-height:1.6;
+      min-height:100dvh; display:flex; flex-direction:column;
     }
     header{padding:10px 12px; text-align:center; position:sticky; top:0; z-index:5; background:var(--bg); border-bottom:1px solid var(--line)}
     h1{margin:0; font-size:clamp(16px,3.2vw,24px); font-weight:800; letter-spacing:.2px;
@@ -30,19 +33,14 @@
     .lang-toggle button{border:none; background:transparent; padding:3px 6px; border-radius:999px; cursor:pointer; font-weight:800; color:var(--muted)}
     .lang-toggle button.active{ background:var(--line); color:var(--text) }
 
-    main{ width:min(960px,96%); margin:8px auto 10px; }
+    main{ width:min(960px,96%); margin:8px auto 10px; flex:1 0 auto; }
 
-    /* Serving bar above cards */
-    
-    .serving-bar label{font-weight:800; font-size:13px; white-space:nowrap}
-    .serving-bar input{
-      flex:1; padding:8px 10px; border-radius:10px; border:1px solid var(--ring); background:transparent; font-size:14px; color:var(--text);
-    }
-
+    /* Cards & grid */
     .grid{display:grid; grid-template-columns:1fr 1fr; gap:8px}
     .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:10px; box-shadow:0 6px 16px rgba(0,0,0,.06)}
     .section-title{font-size:12px; font-weight:800; color:#065f46; background:#d1fae5; display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px; margin-bottom:6px; border:1px solid #a7f3d0}
     @media (prefers-color-scheme: dark){ .section-title{ color:#bbf7d0; background:#052e1a; border:1px solid #064e3b } }
+
     label{display:block; font-weight:700; margin-bottom:4px; font-size:12px}
     input{width:100%; padding:8px 10px; border-radius:10px; background:transparent; border:1px solid var(--ring); outline:none; font-size:14px; color:var(--text)}
     input::placeholder{color:#94a3b8}
@@ -58,555 +56,241 @@
     .btn{padding:10px 14px; border-radius:12px; border:1px solid var(--line); background:var(--table-head); color:var(--text); font-weight:800; cursor:pointer; font-size:14px}
     .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2)); color:white; border:none}
 
-    footer{padding:6px 0 8px; text-align:center; color:#64748b; font-size:12px; margin-top:8px}
-  
-    .remain-pill{min-width:64px; padding:6px 10px; border-radius:999px; font-weight:800; text-align:center;
-      background:#052e1a; color:#bbf7d0; border:1px solid #064e3b}
-    .remain-pill.bad{background:#3b0a0a; color:#fecaca; border-color:#7f1d1d}
-    .tooltip{display:none; position:absolute; inset-block-start:100%; inset-inline-start:0; transform:translateY(6px);
-      font-size:12px; color:#fecaca; background:#3b0a0a; border:1px solid #7f1d1d; padding:6px 8px; border-radius:8px; z-index:10}
-    .tooltip.show{display:block}
-    .invalid{border-color:#ef4444 !important; box-shadow:0 0 0 3px #ef444422 !important}
-    .serving-bar{position:relative}
-    .unit{opacity:.8; font-size:12px; margin-inline-start:6px}
+    footer{padding:6px 0 8px; text-align:center; color:#64748b; font-size:12px; margin-top:auto}
 
-  
+    /* Serving card (top) */
+    #servingCard{ margin-bottom:12px; }
+    #servingCard .serving-bar{display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center}
+    /* Arabic order: label | input | pill */
+    html[lang="ar"] #servingCard .serving-bar label[for="servingTop"]{order:1; text-align:right}
+    html[lang="ar"] #servingCard .serving-bar #servingTop{order:2}
+    html[lang="ar"] #servingCard .serving-bar #remain{order:3}
+    /* English order: pill | input | label */
+    html[lang="en"] #servingCard .serving-bar{direction:ltr}
+    html[lang="en"] #servingCard .serving-bar #remain{order:1}
+    html[lang="en"] #servingCard .serving-bar #servingTop{order:2}
+    html[lang="en"] #servingCard .serving-bar label[for="servingTop"]{order:3; text-align:left}
 
-  
-/* Language-aware serving bar layout */
-.serving-bar{position:relative; display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:8px}
-/* Default (English/LTR): [pill][input][label] */
-.serving-bar #remain{grid-column:1}
-.serving-bar input#servingTop{grid-column:2}
-.serving-bar label[for="servingTop"]{grid-column:3; white-space:nowrap}
-/* Arabic (RTL): [label][input][pill] */
-html[lang="ar"] .serving-bar label[for="servingTop"]{grid-column:1; text-align:right}
-html[lang="ar"] .serving-bar input#servingTop{grid-column:2}
-html[lang="ar"] .serving-bar #remain{grid-column:3}
-
-  
-/* Force single-row layout & tidy label */
-.serving-bar{grid-auto-flow:column; grid-auto-columns:max-content}
-.serving-bar label[for="servingTop"]{margin:0; align-self:center; display:block}
-.serving-bar input#servingTop{width:100%}
-
-  
-.alert-area{margin-top:8px; padding:10px 12px; border-radius:12px; font-size:14px; font-weight:700;
-  background:#3b0a0a; color:#fecaca; border:1px solid #7f1d1d}
-.input.invalid, input.invalid{border-color:#ef4444 !important; box-shadow:0 0 0 3px #ef444422 !important; background:#7f1d1d22}
-
+    /* Pill & alerts */
+    .remain-pill{min-width:64px; padding:6px 10px; border-radius:999px; font-weight:800; text-align:center; background:var(--good-bg); color:var(--good-fg); border:1px solid var(--good-br)}
+    .remain-pill.bad{background:var(--bad-bg); color:var(--bad-fg); border-color:var(--bad-br)}
+    .alert-area{margin-top:8px; padding:10px 12px; border-radius:12px; font-size:14px; font-weight:700; background:var(--bad-bg); color:var(--bad-fg); border:1px solid var(--bad-br); display:none}
+    .unit{opacity:.85; font-size:.9em}
+    input.invalid{ border-color:#ff4d4f !important; background-color:rgba(255,77,79,.12) !important; }
   </style>
-<style>
-/* Keep remain pill green at 0% */
-#remain.bad {
-  background: #052e1a !important;
-  color: #bbf7d0 !important;
-  border-color: #064e3b !important;
-}
-</style><style>
-html, body {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-main {
-  flex: 1 0 auto;
-}
-#pageFooter {
-  flex-shrink: 0;
-  text-align: center;
-  padding: 8px 0;
-  font-size: 12px;
-  color: #64748b;
-}
-</style><style id="sticky-footer-fix">
-/* Stick footer to the visual viewport bottom even on short pages */
-:root{ --footer-h: 32px; }
-html, body { height:auto !important; }
-body{ min-height:100dvh !important; display:flex !important; flex-direction:column !important; }
-main{ flex:1 0 auto !important; }
-footer#pageFooter{ margin-top:auto !important; }
-</style><style id="clean-servingbar-and-footer">
-/* Clean serving card layout and footer */
-#servingCard .serving-bar{
-  display:grid;
-  grid-template-columns:auto 1fr auto;
-  gap:10px; align-items:center;
-}
-/* Arabic order: label | input | pill */
-html[lang="ar"] #servingCard .serving-bar label[for="servingTop"]{ order:1; text-align:right }
-html[lang="ar"] #servingCard .serving-bar #servingTop{ order:2 }
-html[lang="ar"] #servingCard .serving-bar #remain{ order:3 }
-/* English order: pill | input | label */
-html[lang="en"] #servingCard .serving-bar{ direction:ltr }
-html[lang="en"] #servingCard .serving-bar #remain{ order:1 }
-html[lang="en"] #servingCard .serving-bar #servingTop{ order:2 }
-html[lang="en"] #servingCard .serving-bar label[for="servingTop"]{ order:3; text-align:left }
-
-/* Remain pill colors: keep green at 0% and >=0; turn red only if negative via JS class .bad */
-#remain{ background:#052e1a; color:#bbf7d0; border:1px solid #064e3b }
-#remain.bad{ background:#3b0a0a; color:#fecaca; border-color:#7f1d1d }
-
-/* Sticky footer at the bottom */
-:root{ --footer-h: 32px; }
-body{ min-height:100dvh; display:flex; flex-direction:column }
-main{ flex:1 0 auto }
-footer{ margin-top:auto }
-</style><style id="servingcard-strong-order">
-/* Strong mapping of serving card layout with !important to avoid legacy clashes */
-#servingCard .serving-bar{ display:grid !important; grid-template-columns:auto 1fr auto !important; gap:10px !important; align-items:center !important; }
-/* Arabic: label | input | pill */
-html[lang="ar"] #servingCard .serving-bar label[for="servingTop"]{ order:1 !important; text-align:right !important }
-html[lang="ar"] #servingCard .serving-bar #servingTop{ order:2 !important }
-html[lang="ar"] #servingCard .serving-bar #remain{ order:3 !important }
-/* English: pill | input | label */
-html[lang="en"] #servingCard .serving-bar{ direction:ltr !important }
-html[lang="en"] #servingCard .serving-bar #remain{ order:1 !important }
-html[lang="en"] #servingCard .serving-bar #servingTop{ order:2 !important }
-html[lang="en"] #servingCard .serving-bar label[for="servingTop"]{ order:3 !important; text-align:left !important }
-</style><style id="sticky-footer-solid">
-html, body{ height:100%; }
-body{ min-height:100dvh; display:flex; flex-direction:column; }
-header{ flex: 0 0 auto; }
-main{ flex:1 0 auto; }
-#pageFooter{ flex:0 0 auto; margin-top:auto; }
-</style></head>
+</head>
 <body>
-<header>
-<h1 data-i18n="title">حاسبة حصّة أكل القطط</h1>
-<div class="topbar">
-<div></div>
-<div aria-label="Language" class="lang-toggle" role="tablist"><button aria-selected="false" data-lang="en" id="btn-en" role="tab">English</button>
-<button aria-selected="true" class="active" data-lang="ar" id="btn-ar" role="tab">العربية</button>
-</div>
-</div>
-</header>
-<main>
-<!-- Serving size bar -->
-<section class="card" id="servingCard" style="margin-bottom: 12px"><div class="serving-bar"><div class="remain-pill" id="remain">100%</div><input id="servingTop" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"/><label data-i18n="serving_label" for="servingTop">حجم الحصّة (غ)</label><div class="tooltip" data-i18n="remain_tip" id="remainTip">مجموع النِّسَب لازم يكون أقل من 100%</div></div><div aria-live="polite" class="alert-area" id="alertArea" role="alert" style="display:none"></div></section><div class="grid">
-<!-- Right: inputs (percentages only) -->
-<section class="card">
-<div class="section-title" data-i18n="inputs">⚙️ إدخال البيانات</div>
-<div class="two">
-<div>
-<label data-i18n="protein" for="protein">بروتين %</label>
-<input id="protein" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"/>
-</div>
-<div>
-<label data-i18n="fat" for="fat">دهون %</label>
-<input id="fat" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"/>
-</div>
-</div>
-<div class="two" style="margin-top:6px">
-<div>
-<label data-i18n="fiber" for="fiber">ألياف %</label>
-<input id="fiber" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"/>
-</div>
-<div>
-<label data-i18n="moisture" for="moisture">رطوبة %</label>
-<input id="moisture" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"/>
-</div>
-</div>
-<div class="two" style="margin-top:6px">
-<div>
-<label data-i18n="ash" for="ash">رماد %</label>
-<input id="ash" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"/>
-</div>
-</div>
-</section>
-<!-- Left: results table -->
-<section class="card">
-<div class="section-title" data-i18n="results">📊 النتائج</div>
-<table>
-<thead>
-<tr>
-<th data-i18n="col_item">‎</th>
-<th data-i18n="col_serving">لكل حصة</th>
-</tr>
-</thead>
-<tbody>
-<tr><td data-i18n="calories">السعرات</td><td id="calServing">—</td></tr>
-<tr><td data-i18n="p">البروتين</td><td id="gProtein">—</td></tr>
-<tr><td data-i18n="nfe">الكارب</td><td id="gNfe">—</td></tr>
-<tr><td data-i18n="f">الدهون</td><td id="gFat">—</td></tr>
-<tr><td data-i18n="fi">الألياف</td><td id="gFiber">—</td></tr>
-<tr><td data-i18n="m">الرطوبة</td><td id="gMoisture">—</td></tr>
-<tr><td data-i18n="a">الرماد</td><td id="gAsh">—</td></tr>
-</tbody>
-</table>
-</section>
-</div>
-<div class="actions" dir="inherit" id="actionsContainer">
-<button class="btn primary" data-i18n="calc" id="calc">احسب</button>
-<button class="btn" data-i18n="reset" id="reset">إعادة ضبط</button>
-</div>
+  <header>
+    <h1 data-i18n="title">حاسبة حصّة أكل القطط</h1>
+    <div class="topbar">
+      <div class="lang-toggle" role="tablist" aria-label="Language">
+        <button id="btn-en" data-lang="en" role="tab" aria-selected="false">English</button>
+        <button id="btn-ar" class="active" data-lang="ar" role="tab" aria-selected="true">العربية</button>
+      </div>
+    </div>
+  </header>
 
-</main>
-<!-- Meowtrition minimal patch: validation + units + lang-aware serving bar -->
-<script>
-(function(){
-  const $ = (s)=>document.querySelector(s);
-  const byId = (id)=>document.getElementById(id);
+  <main>
+    <!-- Top serving card -->
+    <section class="card" id="servingCard">
+      <div class="serving-bar">
+        <div id="remain" class="remain-pill">100%</div>
+        <input id="servingTop" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*">
+        <label for="servingTop" data-i18n="serving_label">حجم الحصّة (غ)</label>
+      </div>
+      <div id="alertArea" class="alert-area" role="alert" aria-live="polite"></div>
+    </section>
 
-  // 1) Strong language-aware serving bar mapping (override any earlier rules)
-  const style = document.createElement('style');
-  style.textContent = `
-  html[lang="en"] .serving-bar { display:grid !important; grid-template-columns:auto 1fr auto !important; gap:8px }
-  html[lang="en"] .serving-bar #remain{ grid-column:1 !important }
-  html[lang="en"] .serving-bar input#servingTop{ grid-column:2 !important }
-  html[lang="en"] .serving-bar label[for="servingTop"]{ grid-column:3 !important; white-space:nowrap }
-  html[lang="ar"] .serving-bar { display:grid !important; grid-template-columns:auto 1fr auto !important; gap:8px }
-  html[lang="ar"] .serving-bar label[for="servingTop"]{ grid-column:1 !important; white-space:nowrap; text-align:right }
-  html[lang="ar"] .serving-bar input#servingTop{ grid-column:2 !important }
-  html[lang="ar"] .serving-bar #remain{ grid-column:3 !important }
-  `;
-  document.head.appendChild(style);
+    <div class="grid">
+      <!-- Inputs -->
+      <section class="card">
+        <div class="section-title" data-i18n="inputs">⚙️ إدخال البيانات</div>
+        <div class="two">
+          <div>
+            <label for="protein" data-i18n="protein">بروتين %</label>
+            <input id="protein" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*">
+          </div>
+          <div>
+            <label for="fat" data-i18n="fat">دهون %</label>
+            <input id="fat" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*">
+          </div>
+        </div>
+        <div class="two" style="margin-top:6px">
+          <div>
+            <label for="fiber" data-i18n="fiber">ألياف %</label>
+            <input id="fiber" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*">
+          </div>
+          <div>
+            <label for="moisture" data-i18n="moisture">رطوبة %</label>
+            <input id="moisture" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*">
+          </div>
+        </div>
+        <div class="two" style="margin-top:6px">
+          <div>
+            <label for="ash" data-i18n="ash">رماد %</label>
+            <input id="ash" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*">
+          </div>
+        </div>
+      </section>
 
-  // 2) Helpers for Arabic numerals
-  const digitMap = {'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9','٫':'.','،':'.'};
-  function normalizeDigits(str){
-    return String(str || '').replace(/[٠-٩٫،]/g, ch => digitMap[ch] ?? ch).trim();
-  }
-  function parseNumEl(el){
-    const v = normalizeDigits(el.value);
-    const n = parseFloat(v);
-    return (isFinite(n)? n : NaN);
-  }
+      <!-- Results -->
+      <section class="card">
+        <div class="section-title" data-i18n="results">📊 النتائج</div>
+        <table>
+          <thead>
+            <tr>
+              <th data-i18n="col_item">&lrm;</th>
+              <th data-i18n="col_serving">لكل حصة</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td data-i18n="calories">السعرات</td><td id="calServing">—</td></tr>
+            <tr><td data-i18n="p">البروتين</td><td id="gProtein">—</td></tr>
+            <tr><td data-i18n="nfe">الكارب</td><td id="gNfe">—</td></tr>
+            <tr><td data-i18n="f">الدهون</td><td id="gFat">—</td></tr>
+            <tr><td data-i18n="fi">الألياف</td><td id="gFiber">—</td></tr>
+            <tr><td data-i18n="m">الرطوبة</td><td id="gMoisture">—</td></tr>
+            <tr><td data-i18n="a">الرماد</td><td id="gAsh">—</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
 
-  // 3) Elements
-  const sEl = byId('servingTop');
-  const fields = ['protein','fat','fiber','moisture','ash'].map(id=>byId(id)).filter(Boolean);
-  const remain = byId('remain');
-  const alertArea = byId('alertArea');
-  const calcBtn = byId('calc');
+    <div class="actions" id="actionsContainer" dir="inherit">
+      <button class="btn primary" id="calc" data-i18n="calc">احسب</button>
+      <button class="btn" id="reset" data-i18n="reset">إعادة ضبط</button>
+    </div>
+  </main>
 
-  // 4) In-page alert (no modals)
-  function showAlert(msg){
-    if(!alertArea) return;
-    alertArea.style.display = 'block';
-    alertArea.textContent = msg;
-  }
-  function clearAlert(){
-    if(!alertArea) return;
-    alertArea.style.display = 'none';
-    alertArea.textContent='';
-  }
-  // Prevent native alerts
-  window.alert = function(msg){ showAlert(String(msg||'')); };
+  <footer id="pageFooter">
+    <span id="rights">© 2025 albraichy — جميع الحقوق محفوظة.</span>
+  </footer>
 
-  // 5) Live remaining pill
-  function sumPerc(){
-    let total = 0;
-    for(const el of fields){
-      const v = parseNumEl(el);
-      if(!isNaN(v)) total += v;
+  <script>
+    // i18n strings
+    const STR = {
+      ar: {
+        title:"حاسبة حصّة أكل القطط", inputs:"⚙️ إدخال البيانات",
+        serving_label:"حجم الحصّة (غ)",
+        protein:"بروتين %", fat:"دهون %", fiber:"ألياف %", moisture:"رطوبة %", ash:"رماد %",
+        calc:"احسب", reset:"إعادة ضبط", results:"📊 النتائج",
+        col_item:"", col_serving:"لكل حصة",
+        calories:"السعرات",
+        p:"البروتين", f:"الدهون", fi:"الألياف", m:"الرطوبة", a:"الرماد", nfe:"الكارب",
+        rights:"© 2025 albraichy — جميع الحقوق محفوظة."
+      },
+      en: {
+        title:"Cat Food Serving Calculator", inputs:"⚙️ Inputs",
+        serving_label:"Serving size (g)",
+        protein:"Protein %", fat:"Fat %", fiber:"Fiber %", moisture:"Moisture %", ash:"Ash %",
+        calc:"Calculate", reset:"Reset", results:"📊 Results",
+        col_item:"", col_serving:"per serving",
+        calories:"Calories",
+        p:"Protein", f:"Fat", fi:"Fiber", m:"Moisture", a:"Ash", nfe:"Carb",
+        rights:"© 2025 albraichy — All rights reserved."
+      }
+    };
+
+    // Helpers: parsing without changing what the user typed
+    function normalizeDigits(str){
+      if(!str) return '';
+      const map = {'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9',
+                   '۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9'};
+      return str.replace(/[٠-٩۰-۹]/g, d => map[d])
+                .replace(/,/g,'.').replace(/٫/g,'.').replace(/٬/g,'');
     }
-    return total;
-  }
-  function updateRemain(){
-    const left = 100 - sumPerc();
-    if(remain){
-      const val = isFinite(left) ? Math.round(left) : 100;
-      remain.textContent = val + '%';
-      remain.classList.toggle('bad', left <= 0);
+    function parseEl(el){
+      const v = normalizeDigits(String(el.value||''));
+      const n = parseFloat(v);
+      return isFinite(n)? n : 0;
     }
-  }
-  fields.concat([sEl]).forEach(el=>{
-    if(!el) return;
-    el.addEventListener('input', ()=>{
-      // allow Arabic digits
-      const before = el.value;
-      const norm = normalizeDigits(before).replace(/[^0-9.]/g,'');
-      if(before !== norm) el.value = norm;
-      updateRemain();
-      clearAlert();
+    function byPct(s, p){ return s*(p/100); }
+    function fmt(x, d=1){ return isFinite(x)? Number(x).toFixed(d) : '—'; }
+
+    // Language
+    function setLang(lang){
+      const d = STR[lang] || STR.ar;
+      document.documentElement.lang = (lang==='ar'?'ar':'en');
+      document.documentElement.dir  = (lang==='ar'?'rtl':'ltr');
+      document.getElementById('btn-ar').classList.toggle('active', lang==='ar');
+      document.getElementById('btn-en').classList.toggle('active', lang==='en');
+      document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.getAttribute('data-i18n'); if(d[k]) el.textContent = d[k]; });
+      document.getElementById('rights').textContent = d.rights;
+      try{ localStorage.setItem('meow_lang', lang); }catch(e){}
+    }
+
+    // Core calc
+    const ATW = { protein:3.5, fat:8.5, carb:3.5 };
+    function remaining(){
+      const ids=['protein','fat','fiber','moisture','ash'];
+      let total = 0;
+      ids.forEach(id=>{ const el=document.getElementById(id); total += parseEl(el); });
+      return 100 - total;
+    }
+    function refreshRemain(){
+      const pill = document.getElementById('remain');
+      const left = remaining();
+      if(pill){
+        const val = isFinite(left)? Math.round(left) : 100;
+        pill.textContent = val + '%';
+        pill.classList.toggle('bad', left < 0); // red only when negative
+      }
+      const area = document.getElementById('alertArea');
+      if(area){
+        if(left < 0){
+          area.style.display='block';
+          area.textContent = (document.documentElement.lang==='ar')
+            ? 'مجموع النِّسَب لازم يكون ≤ 100%.'
+            : 'Total of percentages must be ≤ 100%.';
+        }else{
+          area.style.display='none'; area.textContent='';
+        }
+      }
+    }
+    function calc(){
+      const s = parseEl(document.getElementById('servingTop'));
+      if(!(s>0)){
+        document.getElementById('servingTop').classList.add('invalid');
+        return;
+      }
+      const p = parseEl(document.getElementById('protein'));
+      const f = parseEl(document.getElementById('fat'));
+      const fi= parseEl(document.getElementById('fiber'));
+      const m = parseEl(document.getElementById('moisture'));
+      const a = parseEl(document.getElementById('ash'));
+      const nfe = Math.max(0, 100 - (p+f+fi+m+a));
+
+      const kcal100 = (p*ATW.protein) + (nfe*ATW.carb) + (f*ATW.fat);
+      const kcalServ = kcal100*(s/100);
+
+      document.getElementById('calServing').innerHTML = fmt(kcalServ) + ' <span class="unit">kcal</span>';
+      document.getElementById('gProtein').innerHTML   = fmt(byPct(s,p)) + ' <span class="unit">g</span>';
+      document.getElementById('gNfe').innerHTML       = fmt(byPct(s,nfe)) + ' <span class="unit">g</span>';
+      document.getElementById('gFat').innerHTML       = fmt(byPct(s,f)) + ' <span class="unit">g</span>';
+      document.getElementById('gFiber').innerHTML     = fmt(byPct(s,fi)) + ' <span class="unit">g</span>';
+      document.getElementById('gMoisture').innerHTML  = fmt(byPct(s,m)) + ' <span class="unit">g</span>';
+      document.getElementById('gAsh').innerHTML       = fmt(byPct(s,a)) + ' <span class="unit">g</span>';
+    }
+    function resetAll(){
+      ['servingTop','protein','fat','fiber','moisture','ash'].forEach(id=>{ const el=document.getElementById(id); if(el){ el.value=''; el.classList.remove('invalid'); } });
+      ['gProtein','gNfe','gFat','gFiber','gMoisture','gAsh','calServing'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent='—'; });
+      const pill=document.getElementById('remain'); if(pill){ pill.textContent='100%'; pill.classList.remove('bad'); }
+      const area=document.getElementById('alertArea'); if(area){ area.style.display='none'; area.textContent=''; }
+    }
+
+    // Bindings
+    document.getElementById('calc').addEventListener('click', ()=>{ refreshRemain(); if(remaining()>=0) calc(); });
+    document.getElementById('reset').addEventListener('click', resetAll);
+    ['protein','fat','fiber','moisture','ash','servingTop'].forEach(id=>{
+      const el=document.getElementById(id); if(!el)return;
+      el.addEventListener('input', refreshRemain);
+      el.addEventListener('change', refreshRemain);
+      el.addEventListener('focus', ()=> el.classList.remove('invalid'));
     });
-    el.addEventListener('focus', ()=> el.classList.remove('invalid'));
-  });
-  updateRemain();
-
-  // 6) Single, clean calculate handler with units
-  function compute(e){
-    clearAlert();
-    // serving > 0
-    const S = parseNumEl(sEl);
-    if(!(S>0)){
-      if(sEl){ sEl.classList.add('invalid'); sEl.scrollIntoView({block:'nearest', behavior:'smooth'}); }
-      showAlert(document.documentElement.lang==='ar' ? 'حجم الحصّة لازم يكون رقم صحيح (> 0).' : 'Serving size must be > 0.');
-      e && e.preventDefault();
-      return;
-    }
-    // total ≤ 100
-    const total = sumPerc();
-    if(!(isFinite(total) && total <= 100)){
-      fields.forEach(el=>el.classList.add('invalid'));
-      showAlert(document.documentElement.lang==='ar' ? 'مجموع النِّسَب لازم يكون ≤ 100%.' : 'Total of percentages must be ≤ 100%.');
-      e && e.preventDefault();
-      return;
-    }
-
-    // values
-    const p = parseNumEl(byId('protein'))   || 0;
-    const f = parseNumEl(byId('fat'))       || 0;
-    const fi= parseNumEl(byId('fiber'))     || 0;
-    const m = parseNumEl(byId('moisture'))  || 0;
-    const a = parseNumEl(byId('ash'))       || 0;
-    const nfe = Math.max(0, 100 - (p+f+fi+m+a));
-
-    // kcal by Modified Atwater
-    const kcal100 = (p*3.5) + (nfe*3.5) + (f*8.5);
-    const kcalServing = kcal100*(S/100);
-
-    function g(x){ return S*(x/100); }
-    function setVal(id, val, unit){
-      const el = byId(id);
-      if(!el) return;
-      el.innerHTML = (isFinite(val)? val.toFixed(1) : '—') + (unit? ` <span class="unit">${unit}</span>` : '');
-    }
-
-    setVal('calServing', kcalServing, 'kcal');
-    setVal('gProtein',   g(p), 'g');
-    setVal('gNfe',       g(nfe), 'g');
-    setVal('gFat',       g(f), 'g');
-    setVal('gFiber',     g(fi), 'g');
-    setVal('gMoisture',  g(m), 'g');
-    setVal('gAsh',       g(a), 'g');
-  }
-
-  // Remove old calc listeners by cloning node
-  if(calcBtn){
-    const clone = calcBtn.cloneNode(true);
-    calcBtn.parentNode.replaceChild(clone, calcBtn);
-    clone.addEventListener('click', compute);
-  }
-
-  // Keep everything in sync on language toggle (re-apply serving bar CSS by lang attribute)
-  const btnAr = byId('btn-ar'), btnEn = byId('btn-en');
-  function refreshLayout(){ /* CSS lang rules handle order; just force reflow */ document.body.offsetHeight; }
-  [btnAr, btnEn].forEach(b=> b && b.addEventListener('click', refreshLayout));
-})();
-</script>
-<!-- Patch 2: lang-aware serving bar flip + strict empty-fields validation + remove placeholders -->
-<script>
-(function(){
-  const $ = (s)=>document.querySelector(s);
-  const byId = (id)=>document.getElementById(id);
-
-  // find serving bar container and mark it for styling
-  const sEl = byId('servingTop');
-  let bar = null;
-  if(sEl){
-    // try a few parents to attach a class without changing DOM
-    bar = sEl.closest('.serving-bar') || sEl.closest('.servingRow') || sEl.parentElement?.parentElement || sEl.parentElement;
-    if(bar) bar.classList.add('serving-bar');
-    // remove placeholders (also from % fields)
-    sEl.removeAttribute('placeholder');
-  }
-  ['protein','fat','fiber','moisture','ash'].forEach(id=>{
-    const el = byId(id);
-    if(el) el.removeAttribute('placeholder');
-  });
-
-  // CSS order per language
-  const style = document.createElement('style');
-  style.textContent = `
-  .serving-bar{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
-  /* Arabic: label | input | indicator */
-  html[lang="ar"] .serving-bar .label-serving{order:1}
-  html[lang="ar"] .serving-bar #servingTop{order:2}
-  html[lang="ar"] .serving-bar #remain{order:3}
-  /* English: indicator | input | label */
-  html[lang="en"] .serving-bar #remain{order:1}
-  html[lang="en"] .serving-bar #servingTop{order:2}
-  html[lang="en"] .serving-bar .label-serving{order:3}
-  `;
-  document.head.appendChild(style);
-
-  // ensure label has a stable class used above
-  const label = document.querySelector('label[for="servingTop"]');
-  if(label) label.classList.add('label-serving');
-
-  // helpers
-  const digitMap = {'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9','٫':'.','،':'.'};
-  const normDigits = s => String(s||'').replace(/[٠-٩٫،]/g, ch => digitMap[ch] ?? ch).trim();
-  const parseEl = el => { const v = normDigits(el.value); const n = parseFloat(v); return (isFinite(n)? n : NaN); };
-
-  const fields = ['protein','fat','fiber','moisture','ash'].map(id=>byId(id)).filter(Boolean);
-  const remain = byId('remain');
-  const alertArea = byId('alertArea');
-  const calcBtn = byId('calc');
-
-  function showAlert(msg){ if(alertArea){ alertArea.style.display='block'; alertArea.textContent=msg; } }
-  function clearAlert(){ if(alertArea){ alertArea.style.display='none'; alertArea.textContent=''; } }
-  // prevent blocking alerts
-  window.alert = function(msg){ showAlert(String(msg||'')); };
-
-  function sumPerc(){
-    let t=0;
-    for(const el of fields){
-      const v = parseEl(el);
-      if(!isNaN(v)) t+=v;
-    }
-    return t;
-  }
-  function updateRemain(){
-    if(!remain) return;
-    const left = 100 - sumPerc();
-    const val = isFinite(left)? Math.round(left) : 100;
-    remain.textContent = val + '%';
-    remain.classList.toggle('bad', left <= 0);
-  }
-
-  [...fields, sEl].forEach(el=>{
-    if(!el) return;
-    el.addEventListener('input', ()=>{
-      el.value = normDigits(el.value).replace(/[^0-9.]/g,'');
-      updateRemain();
-      clearAlert();
-      el.classList.remove('invalid');
-    });
-    el.addEventListener('focus', ()=> el.classList.remove('invalid'));
-  });
-  updateRemain();
-
-  function validateNotEmptyNumeric(){
-    let ok=true;
-    // serving: required and >0
-    const S = parseEl(sEl);
-    if(!(S>0)){ ok=false; sEl.classList.add('invalid'); }
-    // all % fields required numeric
-    for(const el of fields){
-      const v = parseEl(el);
-      if(isNaN(v)){ ok=false; el.classList.add('invalid'); }
-    }
-    if(!ok){
-      showAlert(document.documentElement.lang==='ar' ? 'رجاءً املأ كل الخانات بأرقام صحيحة.' : 'Please fill all fields with valid numbers.');
-      return false;
-    }
-    // total ≤ 100
-    const total = sumPerc();
-    if(!(isFinite(total) && total <= 100)){
-      fields.forEach(el=>el.classList.add('invalid'));
-      showAlert(document.documentElement.lang==='ar' ? 'مجموع النِّسَب لازم يكون ≤ 100%.' : 'Total of percentages must be ≤ 100%.');
-      return false;
-    }
-    clearAlert();
-    return true;
-  }
-
-  function compute(e){
-    if(!validateNotEmptyNumeric()){ e && e.preventDefault(); return; }
-        try{ [sEl, ...fields].forEach(function(el){ if(el) el.classList.remove("invalid"); }); }catch(_e){}    try{ if(typeof clearAlert==="function") clearAlert(); }catch(_e){}const S = parseEl(sEl);
-    const p = parseEl(byId('protein'));
-    const f = parseEl(byId('fat'));
-    const fi= parseEl(byId('fiber'));
-    const m = parseEl(byId('moisture'));
-    const a = parseEl(byId('ash'));
-
-    const nfe = Math.max(0, 100 - (p+f+fi+m+a));
-    const kcal100 = (p*3.5) + (nfe*3.5) + (f*8.5);
-    const kcalServing = kcal100*(S/100);
-
-    function g(x){ return S*(x/100); }
-    function setVal(id, val, unit){
-      const el = byId(id);
-      if(el) el.innerHTML = (isFinite(val)? val.toFixed(1) : '—') + (unit? ` <span class="unit">${unit}</span>` : '');
-    }
-
-    setVal('calServing', kcalServing, 'kcal');
-    setVal('gProtein',   g(p), 'g');
-    setVal('gNfe',       g(nfe), 'g');
-    setVal('gFat',       g(f), 'g');
-    setVal('gFiber',     g(fi), 'g');
-    setVal('gMoisture',  g(m), 'g');
-    setVal('gAsh',       g(a), 'g');
-  }
-
-  const old = byId('calc');
-  if(old){
-    const clone = old.cloneNode(true);
-    old.parentNode.replaceChild(clone, old);
-    clone.addEventListener('click', compute);
-  }
-
-  // when language toggles, CSS takes care of order; we just force a reflow
-  const btnAr = byId('btn-ar'), btnEn = byId('btn-en');
-  [btnAr, btnEn].forEach(b=> b && b.addEventListener('click', ()=>{ document.body.offsetHeight; }));
-})();
-</script>
-<style>
-/* red invalid both border and bg */
-input.invalid{ border-color:#ff4d4f !important; background-color:rgba(255,77,79,.12) !important; }
-#alertArea{ display:none; margin-top:8px; padding:10px 12px; border-radius:12px; background:#5a1515; color:#ffd7d7; font-weight:600; }
-.unit{ opacity:.85; font-size:.9em }
-</style>
-<script id="remain-bad-threshold-fix">
-(function(){
-  const byId = (id)=>document.getElementById(id);
-  function setBad(rem){
-    const pill = byId('remain');
-    if(!pill) return;
-    // only mark bad if negative, not at 0
-    if(rem < 0){ pill.classList.add('bad'); } else { pill.classList.remove('bad'); }
-  }
-  // Patch existing updateRemaining if defined
-  const orig = window.updateRemaining;
-  window.updateRemaining = function(){
-    try{
-      if(typeof orig === 'function'){ orig(); }
-    }catch(_e){}
-    // recompute remaining safely from inputs
-    const ids = ['protein','fat','fiber','moisture','ash'];
-    let total = 0;
-    ids.forEach(id=>{
-      const el = document.getElementById(id);
-      if(!el) return;
-      const v = parseFloat((el.value||'').replace(/[^\d.]/g,''));
-      if(isFinite(v)) total += v;
-    });
-    const rem = 100 - total;
-    setBad(rem);
-  };
-  // Initial apply
-  document.addEventListener('input', window.updateRemaining, true);
-  document.addEventListener('DOMContentLoaded', window.updateRemaining);
-  window.updateRemaining();
-})();
-</script><script id="clean-remain-logic">
-(function(){
-  const ids = ['protein','fat','fiber','moisture','ash'];
-  const byId = (id)=>document.getElementById(id);
-  const pill = byId('remain');
-  function num(el){
-    if(!el) return 0;
-    const v = String(el.value||'').replace(/[^\d.]/g,'');
-    const n = parseFloat(v);
-    return isFinite(n)? n : 0;
-  }
-  function remaining(){
-    let total = 0;
-    ids.forEach(id => total += num(byId(id)));
-    return 100 - total;
-  }
-  function refresh(){
-    const rem = remaining();
-    if(pill){
-      pill.textContent = (isFinite(rem)? Math.round(rem) : 100) + '%';
-      if(rem < 0) pill.classList.add('bad'); else pill.classList.remove('bad'); // green at 0%
-    }
-  }
-  // Hook inputs
-  ids.concat(['servingTop']).forEach(id=>{
-    const el = byId(id);
-    if(el){
-      el.addEventListener('input', refresh);
-      el.addEventListener('change', refresh);
-    }
-  });
-  document.addEventListener('DOMContentLoaded', refresh);
-  refresh();
-})();
-</script><footer id="pageFooter">
-<span id="rights">© 2025 albraichy — جميع الحقوق محفوظة.</span>
-</footer></body>
+    document.getElementById('btn-ar').addEventListener('click', ()=>setLang('ar'));
+    document.getElementById('btn-en').addEventListener('click', ()=>setLang('en'));
+    (function(){ let lang='ar'; try{ lang = localStorage.getItem('meow_lang')||''; }catch(e){} if(!lang){ const pref=(navigator.language||'en').toLowerCase(); lang=pref.startsWith('ar')?'ar':'en'; } setLang(lang); })();
+    refreshRemain();
+  </script>
+</body>
 </html>

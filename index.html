@@ -24,8 +24,8 @@
     header{padding:10px 12px; text-align:center; position:sticky; top:0; z-index:5; background:var(--bg); border-bottom:1px solid var(--line)}
     h1{margin:0; font-size:clamp(16px,3.2vw,24px); font-weight:800; letter-spacing:.2px;
       background:linear-gradient(90deg,var(--text),var(--hx) 60%,var(--text)); -webkit-background-clip:text; background-clip:text; color:transparent}
-    .topbar{display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:6px}
-    .lang-toggle{display:inline-flex; gap:4px; align-items:center; border:1px solid var(--line); border-radius:999px; padding:3px 6px; font-size:11px; background:var(--card)}
+    .topbar{display:flex; justify-content:center; align-items:center; gap:8px; margin-top:6px}
+    .lang-toggle{display:inline-flex; gap:4px; align-items:center; border:1px solid var(--line); border-radius:999px; padding:3px 6px; font-size:11px; background:var(--card); direction:ltr}
     .lang-toggle button{border:none; background:transparent; padding:3px 6px; border-radius:999px; cursor:pointer; font-weight:800; color:var(--muted)}
     .lang-toggle button.active{ background:var(--line); color:var(--text) }
 
@@ -173,11 +173,12 @@
     function setLang(lang){
   const d = STR[lang];
   document.documentElement.lang = (lang==='ar' ? 'ar' : 'en');
-  document.documentElement.dir  = (lang==='ar' ? 'rtl' : 'ltr');  // flip page direction with language
+  document.documentElement.dir  = (lang==='ar' ? 'rtl' : 'ltr');
   document.getElementById('btn-ar').classList.toggle('active', lang==='ar');
   document.getElementById('btn-en').classList.toggle('active', lang==='en');
   document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.getAttribute('data-i18n'); if(d[k]) el.textContent = d[k]; });
   document.getElementById('rights').textContent = d.rights;
+  try{ localStorage.setItem('meow_lang', lang); }catch(e){}
 }
 
     const ATW = { protein:3.5, fat:8.5, carb:3.5 };
@@ -233,7 +234,7 @@
     document.getElementById('reset').addEventListener('click', resetAll);
     document.getElementById('btn-ar').addEventListener('click', ()=>setLang('ar'));
     document.getElementById('btn-en').addEventListener('click', ()=>setLang('en'));
-    (()=>{const pref=(navigator.language||navigator.userLanguage||'en').toLowerCase(); setLang(pref.startsWith('ar')?'ar':'en');})();
+    (()=>{let lang=(()=>{try{return localStorage.getItem('meow_lang')||''}catch(e){return ''}})(); if(!lang){const pref=(navigator.language||navigator.userLanguage||'en').toLowerCase(); lang = pref.startsWith('ar')?'ar':'en';} setLang(lang);})();
   </script>
 </body>
 </html>

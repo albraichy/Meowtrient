@@ -16,33 +16,50 @@
       }
     }
     *{box-sizing:border-box}
-    body{margin:0; background:var(--bg); color:var(--text); font-family:"Cairo", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; line-height:1.6}
+    body{
+      margin:0; background:var(--bg); color:var(--text);
+      font-family:"Cairo", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      line-height:1.6;
+    }
     header{padding:10px 12px; text-align:center; position:sticky; top:0; z-index:5; background:var(--bg); border-bottom:1px solid var(--line)}
     h1{margin:0; font-size:clamp(16px,3.2vw,24px); font-weight:800; letter-spacing:.2px;
-       background:linear-gradient(90deg,var(--text),var(--hx) 60%,var(--text)); -webkit-background-clip:text; background-clip:text; color:transparent}
+      background:linear-gradient(90deg,var(--text),var(--hx) 60%,var(--text)); -webkit-background-clip:text; background-clip:text; color:transparent}
     .topbar{display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:6px}
     .lang-toggle{display:inline-flex; gap:4px; align-items:center; border:1px solid var(--line); border-radius:999px; padding:3px 6px; font-size:11px; background:var(--card)}
     .lang-toggle button{border:none; background:transparent; padding:3px 6px; border-radius:999px; cursor:pointer; font-weight:800; color:var(--muted)}
     .lang-toggle button.active{ background:var(--line); color:var(--text) }
+
     main{ width:min(960px,96%); margin:8px auto 10px; }
-    .serving-bar{display:flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:8px 10px; margin-bottom:8px}
+
+    /* Serving bar above cards */
+    .serving-bar{
+      display:flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--line);
+      border-radius:12px; padding:8px 10px; margin-bottom:8px;
+    }
     .serving-bar label{font-weight:800; font-size:13px; white-space:nowrap}
-    .serving-bar input{flex:1; padding:8px 10px; border-radius:10px; border:1px solid var(--ring); background:transparent; font-size:14px; color:var(--text)}
+    .serving-bar input{
+      flex:1; padding:8px 10px; border-radius:10px; border:1px solid var(--ring); background:transparent; font-size:14px; color:var(--text);
+    }
+
     .grid{display:grid; grid-template-columns:1fr 1fr; gap:8px}
     .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:10px; box-shadow:0 6px 16px rgba(0,0,0,.06)}
     .section-title{font-size:12px; font-weight:800; color:#065f46; background:#d1fae5; display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px; margin-bottom:6px; border:1px solid #a7f3d0}
     @media (prefers-color-scheme: dark){ .section-title{ color:#bbf7d0; background:#052e1a; border:1px solid #064e3b } }
     label{display:block; font-weight:700; margin-bottom:4px; font-size:12px}
     input{width:100%; padding:8px 10px; border-radius:10px; background:transparent; border:1px solid var(--ring); outline:none; font-size:14px; color:var(--text)}
-    input::placeholder{color:#94a3b8} input:focus{border-color:var(--accent); box-shadow:0 0 0 3px #22c55e22}
+    input::placeholder{color:#94a3b8}
+    input:focus{border-color:var(--accent); box-shadow:0 0 0 3px #22c55e22}
     .two{display:grid; grid-template-columns:1fr; gap:6px}
+
     table{width:100%; border-collapse:separate; border-spacing:0; overflow:hidden; border-radius:10px; margin-top:4px}
     thead th{background:var(--table-head); color:var(--text); text-align:right; padding:8px; font-size:12px; border-bottom:1px solid var(--line); white-space:nowrap}
     tbody td{padding:8px; border-bottom:1px dashed var(--line); font-size:13px}
     tbody tr:last-child td{border-bottom:none}
+
     .actions{display:flex; justify-content:center; gap:10px; margin-top:12px}
     .btn{padding:10px 14px; border-radius:12px; border:1px solid var(--line); background:var(--table-head); color:var(--text); font-weight:800; cursor:pointer; font-size:14px}
     .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2)); color:white; border:none}
+
     footer{padding:6px 0 8px; text-align:center; color:#64748b; font-size:12px; margin-top:8px}
   </style>
 </head>
@@ -59,18 +76,51 @@
   </header>
 
   <main>
+    <!-- Serving size bar -->
     <div class="serving-bar">
       <label for="servingTop" data-i18n="serving_label">حجم الحصّة (غ)</label>
       <input id="servingTop" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" type="text" placeholder="50">
     </div>
 
     <div class="grid">
+      <!-- Right: inputs (percentages only) -->
+      <section class="card">
+        <div class="section-title" data-i18n="inputs">⚙️ إدخال البيانات</div>
+        <div class="two">
+          <div>
+            <label for="protein" data-i18n="protein">بروتين %</label>
+            <input id="protein" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" type="text" placeholder="10">
+          </div>
+          <div>
+            <label for="fat" data-i18n="fat">دهون %</label>
+            <input id="fat" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" type="text" placeholder="5">
+          </div>
+        </div>
+        <div class="two" style="margin-top:6px">
+          <div>
+            <label for="fiber" data-i18n="fiber">ألياف %</label>
+            <input id="fiber" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" type="text" placeholder="1.5">
+          </div>
+          <div>
+            <label for="moisture" data-i18n="moisture">رطوبة %</label>
+            <input id="moisture" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" type="text" placeholder="78">
+          </div>
+        </div>
+        <div class="two" style="margin-top:6px">
+          <div>
+            <label for="ash" data-i18n="ash">رماد %</label>
+            <input id="ash" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" type="text" placeholder="2.5">
+          </div>
+        </div>
+      </section>
+
+      <!-- Left: results table -->
       <section class="card">
         <div class="section-title" data-i18n="results">📊 النتائج</div>
         <table>
           <thead>
             <tr>
-              <th data-i18n="col_item"></th>
+              <th data-i18n="col_item">&lrm;</th>
               <th data-i18n="col_serving">غ لكل حصة</th>
             </tr>
           </thead>
@@ -85,91 +135,102 @@
           </tbody>
         </table>
       </section>
-
-      <section class="card">
-        <div class="section-title" data-i18n="inputs">⚙️ إدخال البيانات</div>
-        <div class="two">
-          <div><label for="protein" data-i18n="protein">بروتين %</label><input id="protein" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" type="text" placeholder="10"></div>
-          <div><label for="fat" data-i18n="fat">دهون %</label><input id="fat" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" type="text" placeholder="5"></div>
-        </div>
-        <div class="two" style="margin-top:6px">
-          <div><label for="fiber" data-i18n="fiber">ألياف %</label><input id="fiber" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" type="text" placeholder="1.5"></div>
-          <div><label for="moisture" data-i18n="moisture">رطوبة %</label><input id="moisture" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" type="text" placeholder="78"></div>
-        </div>
-        <div class="two" style="margin-top:6px">
-          <div><label for="ash" data-i18n="ash">رماد %</label><input id="ash" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" type="text" placeholder="2.5"></div>
-        </div>
-      </section>
     </div>
 
-    <div class="actions">
-      <button class="btn" id="reset" data-i18n="reset">إعادة ضبط</button>
+    <div class="actions" id="actionsContainer" dir="inherit">
       <button class="btn primary" id="calc" data-i18n="calc">احسب</button>
+      <button class="btn" id="reset" data-i18n="reset">إعادة ضبط</button>
     </div>
 
-    <footer><span id="rights">© 2025 albraichy — جميع الحقوق محفوظة.</span></footer>
+    <footer>
+      <span id="rights">© 2025 albraichy — جميع الحقوق محفوظة.</span>
+    </footer>
   </main>
 
   <script>
     const STR = {
-      ar:{title:"حاسبة حصّة أكل القطط", inputs:"⚙️ إدخال البيانات", serving_label:"حجم الحصّة (غ)",
-          protein:"بروتين %", fat:"دهون %", fiber:"ألياف %", moisture:"رطوبة %", ash:"رماد %",
-          calc:"احسب", reset:"إعادة ضبط", results:"📊 النتائج", col_item:"", col_serving:"غ لكل حصة",
-          calories:"السعرات", p:"البروتين", f:"الدهون", fi:"الألياف", m:"الرطوبة", a:"الرماد", nfe:"الكارب",
-          rights:"© 2025 albraichy — جميع الحقوق محفوظة."
+      ar: {
+        title:"حاسبة حصّة أكل القطط", inputs:"⚙️ إدخال البيانات",
+        serving_label:"حجم الحصّة (غ)",
+        protein:"بروتين %", fat:"دهون %", fiber:"ألياف %", moisture:"رطوبة %", ash:"رماد %",
+        calc:"احسب", reset:"إعادة ضبط", results:"📊 النتائج",
+        col_item:"", col_serving:"غ لكل حصة",
+        calories:"السعرات",
+        p:"البروتين", f:"الدهون", fi:"الألياف", m:"الرطوبة", a:"الرماد", nfe:"الكارب",
+        rights:"© 2025 albraichy — جميع الحقوق محفوظة."
       },
-      en:{title:"Cat Food Serving Calculator", inputs:"⚙️ Inputs", serving_label:"Serving size (g)",
-          protein:"Protein %", fat:"Fat %", fiber:"Fiber %", moisture:"Moisture %", ash:"Ash %",
-          calc:"Calculate", reset:"Reset", results:"📊 Results", col_item:"", col_serving:"g / serving",
-          calories:"Calories", p:"Protein", f:"Fat", fi:"Fiber", m:"Moisture", a:"Ash", nfe:"Carb",
-          rights:"© 2025 albraichy — All rights reserved."
+      en: {
+        title:"Cat Food Serving Calculator", inputs:"⚙️ Inputs",
+        serving_label:"Serving size (g)",
+        protein:"Protein %", fat:"Fat %", fiber:"Fiber %", moisture:"Moisture %", ash:"Ash %",
+        calc:"Calculate", reset:"Reset", results:"📊 Results",
+        col_item:"", col_serving:"g / serving",
+        calories:"Calories",
+        p:"Protein", f:"Fat", fi:"Fiber", m:"Moisture", a:"Ash", nfe:"Carb",
+        rights:"© 2025 albraichy — All rights reserved."
       }
     };
     function setLang(lang){
-      const d = STR[lang]; // Direction remains RTL; no dir flip
-      document.documentElement.lang = (lang==='ar'?'ar':'en');
+      const d = STR[lang];
+      document.documentElement.lang = lang === 'ar' ? 'ar' : 'en';
+      // Toggle active buttons
       document.getElementById('btn-ar').classList.toggle('active', lang==='ar');
       document.getElementById('btn-en').classList.toggle('active', lang==='en');
-      document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.getAttribute('data-i18n'); if(d[k]!==undefined) el.textContent=d[k]; });
+      // Update texts
+      document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.getAttribute('data-i18n'); if(d[k]) el.textContent=d[k]; });
       document.getElementById('rights').textContent = d.rights;
-    }
+      // Make sure actions inherit correct direction so order visually meets requirement
+      }
 
     const ATW = { protein:3.5, fat:8.5, carb:3.5 };
+
     function normalizeDigits(str){
       if(!str) return '';
-      const map={'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9',
-                 '۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9'};
-      return str.replace(/[٠-٩۰-۹]/g, d=>map[d])
-                .replace(/\u066B/g,'.')  // Arabic decimal sep
-                .replace(/,/g,'.')       // comma decimal
-                .replace(/\u066C/g,'')   // Arabic thousands sep
-                .replace(/\s+/g,'');
+      const map = {'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9',
+                   '۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9'};
+      return str.replace(/[٠-٩۰-۹]/g, d => map[d])
+                .replace(/\u066B/g, '.')  // Arabic decimal separator (٫)
+                .replace(/\u066C/g, '')   // Arabic thousands separator (٬)
+                .replace(/,/g, '.')       // comma as decimal
+                .trim();
     }
+
     function parseNumEl(el){ const v = normalizeDigits(el.value); const n = parseFloat(v); return isFinite(n)?n:0; }
     function nfePercent(p,f,fi,m,a){ return 100 - ((p||0)+(f||0)+(fi||0)+(m||0)+(a||0)); }
-    function kcalPer100g(p,f,fi,m,a){ const nfe=nfePercent(p,f,fi,m,a); const kcal=(p*ATW.protein)+(nfe*ATW.carb)+(f*ATW.fat); return {kcal100:kcal, nfe}; }
-    function byPct(s,pct){ return s*(pct/100); }
-    function fmt(x,d=1){ return isFinite(x)?Number(x).toFixed(d):'0.0'; }
+    function kcalPer100g(p,f,fi,m,a){ const nfe = nfePercent(p,f,fi,m,a); const kcal = (p*ATW.protein)+(nfe*ATW.carb)+(f*ATW.fat); return {kcal100:kcal, nfe}; }
+    function byPct(s, pct){ return s*(pct/100); }
+    function fmt(x, d=1){ return isFinite(x)?Number(x).toFixed(d):'—'; }
 
     function calc(){
-      const s=parseNumEl(document.getElementById('servingTop'));
-      const p=parseNumEl(document.getElementById('protein'));
-      const f=parseNumEl(document.getElementById('fat'));
-      const fi=parseNumEl(document.getElementById('fiber'));
-      const m=parseNumEl(document.getElementById('moisture'));
-      const a=parseNumEl(document.getElementById('ash'));
-      if(!(s>0)){ alert(document.documentElement.lang==='ar'?'حجم الحصّة لازم يكون رقم صحيح (>0).':'Serving size must be > 0.'); return; }
+      const s = parseNumEl(document.getElementById('servingTop'));
+      const p = parseNumEl(document.getElementById('protein'));
+      const f = parseNumEl(document.getElementById('fat'));
+      const fi = parseNumEl(document.getElementById('fiber'));
+      const m = parseNumEl(document.getElementById('moisture'));
+      const a = parseNumEl(document.getElementById('ash'));
+
+      if(!(s>0)){ alert(document.documentElement.lang==='ar' ? 'حجم الحصّة لازم يكون رقم صحيح (>0).' : 'Serving size must be > 0.'); return; }
+
       const {kcal100,nfe} = kcalPer100g(p,f,fi,m,a);
       const ks = kcal100 * (s/100);
+
+      // per serving column (grams)
       gProtein.textContent=fmt(byPct(s,p));
       gNfe.textContent=fmt(byPct(s,nfe));
       gFat.textContent=fmt(byPct(s,f));
       gFiber.textContent=fmt(byPct(s,fi));
       gMoisture.textContent=fmt(byPct(s,m));
       gAsh.textContent=fmt(byPct(s,a));
-      calServing.textContent=fmt(ks);
+
+      // calories row
+      calServing.textContent = fmt(ks);
     }
-    function resetAll(){ ['servingTop','protein','fat','fiber','moisture','ash'].forEach(id=>document.getElementById(id).value=''); ['gProtein','gNfe','gFat','gFiber','gMoisture','gAsh','calServing'].forEach(id=>window[id].textContent='—'); }
+
+    function resetAll(){
+      ['servingTop','protein','fat','fiber','moisture','ash'].forEach(id=>document.getElementById(id).value='');
+      ['gProtein','gNfe','gFat','gFiber','gMoisture','gAsh','calServing'].forEach(id=>window[id].textContent='—');
+    }
+
     document.getElementById('calc').addEventListener('click', calc);
     document.getElementById('reset').addEventListener('click', resetAll);
     document.getElementById('btn-ar').addEventListener('click', ()=>setLang('ar'));

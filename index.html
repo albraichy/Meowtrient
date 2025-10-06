@@ -33,10 +33,10 @@
 
     /* Serving bar above cards */
     .serving-bar{
-      display:flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--line);
+      direction:ltr; display:flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--line);
       border-radius:12px; padding:8px 10px; margin-bottom:8px;
     }
-    .serving-bar label{font-weight:800; font-size:13px; white-space:nowrap}
+    .serving-bar label{direction:rtl; text-align:right; font-weight:800; font-size:13px; white-space:nowrap}
     .serving-bar input{
       flex:1; padding:8px 10px; border-radius:10px; border:1px solid var(--ring); background:transparent; font-size:14px; color:var(--text);
     }
@@ -78,19 +78,15 @@
     <h1 data-i18n="title">حاسبة حصّة أكل القطط</h1>
     <div class="topbar">
       <div></div>
-      <div class="lang-toggle" role="tablist" aria-label="Language">
+      <div class="lang-toggle" role="tablist" aria-label="Language"><button id="btn-en" data-lang="en" role="tab" aria-selected="false">English</button>
         <button id="btn-ar" class="active" data-lang="ar" role="tab" aria-selected="true">العربية</button>
-        <button id="btn-en" data-lang="en" role="tab" aria-selected="false">English</button>
       </div>
     </div>
   </header>
 
   <main>
     <!-- Serving size bar -->
-    <div class="serving-bar">
-      <label for="servingTop" data-i18n="serving_label">حجم الحصّة (غ)</label>
-      <input id="servingTop" type="number" inputmode="decimal" step="any"><div class="remain-wrap"><div id="remain" class="remain-pill">100%</div><div id="remainTip" class="tooltip" data-i18n="remain_tip">مجموع النِّسَب لازم يكون أقل من 100%</div></div inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" type="text" placeholder="50">
-    </div>
+    <div class="serving-bar"><div id="remain" class="remain-pill">100%</div><input type="text" id="servingTop" inputmode="decimal"><label for="servingTop" data-i18n="serving_label">حجم الحصّة (غ)</label><div id="remainTip" class="tooltip" data-i18n="remain_tip">مجموع النِّسَب لازم يكون أقل من 100%</div></div>
 
     <div class="grid">
       <!-- Right: inputs (percentages only) -->
@@ -99,27 +95,27 @@
         <div class="two">
           <div>
             <label for="protein" data-i18n="protein">بروتين %</label>
-            <input id="protein" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" type="text" placeholder="10">
+            <input type="text" id="protein" inputmode="decimal" placeholder="10">
           </div>
           <div>
             <label for="fat" data-i18n="fat">دهون %</label>
-            <input id="fat" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" type="text" placeholder="5">
+            <input type="text" id="fat" inputmode="decimal" placeholder="5">
           </div>
         </div>
         <div class="two" style="margin-top:6px">
           <div>
             <label for="fiber" data-i18n="fiber">ألياف %</label>
-            <input id="fiber" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" type="text" placeholder="1.5">
+            <input type="text" id="fiber" inputmode="decimal" placeholder="1.5">
           </div>
           <div>
             <label for="moisture" data-i18n="moisture">رطوبة %</label>
-            <input id="moisture" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" type="text" placeholder="78">
+            <input type="text" id="moisture" inputmode="decimal" placeholder="78">
           </div>
         </div>
         <div class="two" style="margin-top:6px">
           <div>
             <label for="ash" data-i18n="ash">رماد %</label>
-            <input id="ash" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" type="text" placeholder="2.5">
+            <input type="text" id="ash" inputmode="decimal" placeholder="2.5">
           </div>
         </div>
       </section>
@@ -252,6 +248,12 @@
     function markInvalid(el){el.classList.add('invalid'); el.addEventListener('focus', ()=>el.classList.remove('invalid'), {once:true});}
     function updateRemaining(){
   function val(id){ const el=document.getElementById(id); return el?parseNumEl(el):0; }
+  const rem = 100 - (val('protein')+val('fat')+val('fiber')+val('moisture')+val('ash'));
+  const pill = document.getElementById('remain');
+  const tip  = document.getElementById('remainTip');
+  if(pill){ pill.textContent=(isFinite(rem)?Math.max(rem,-999):100).toFixed(0)+'%'; pill.classList.toggle('bad', rem<=0); }
+  if(tip){ tip.classList.toggle('show', rem<=0); }
+}
   const rem = 100 - (val('protein')+val('fat')+val('fiber')+val('moisture')+val('ash'));
   const pill = document.getElementById('remain');
   const tip  = document.getElementById('remainTip');

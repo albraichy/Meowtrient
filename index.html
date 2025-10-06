@@ -251,19 +251,15 @@
     function nfePercent(p,f,fi,m,a){return 100-((p||0)+(f||0)+(fi||0)+(m||0)+(a||0))}
     function markInvalid(el){el.classList.add('invalid'); el.addEventListener('focus', ()=>el.classList.remove('invalid'), {once:true});}
     function updateRemaining(){
-      const p=parseNumEl(document.getElementById('protein'));
-      const f=parseNumEl(document.getElementById('fat'));
-      const fi=parseNumEl(document.getElementById('fiber'));
-      const m=parseNumEl(document.getElementById('moisture'));
-      const a=parseNumEl(document.getElementById('ash'));
-      const rem = 100 - (p+f+fi+m+a);
-      const pill = document.getElementById('remain');
-      const tip  = document.getElementById('remainTip');
-      pill.textContent = (isFinite(rem)?Math.max(rem,-999):100).toFixed(0) + '%';
-      const bad = rem <= 0;
-      pill.classList.toggle('bad', bad);
-      tip.classList.toggle('show', bad);
-    }
+  function val(id){ const el=document.getElementById(id); return el?parseNumEl(el):0; }
+  const p = val('protein'), f = val('fat'), fi = val('fiber'), m = val('moisture'), a = val('ash');
+  const rem = 100 - (p+f+fi+m+a);
+  const pill = document.getElementById('remain');
+  const tip  = document.getElementById('remainTip');
+  if(pill){ pill.textContent = (isFinite(rem)?Math.max(rem,-999):100).toFixed(0) + '%';
+            pill.classList.toggle('bad', rem <= 0); }
+  if(tip){ tip.classList.toggle('show', rem <= 0); }
+}
     ['protein','fat','fiber','moisture','ash'].forEach(id=>{
       const el=document.getElementById(id);
       if(el){ el.addEventListener('input', updateRemaining); el.addEventListener('change', updateRemaining); }
@@ -297,6 +293,20 @@
       const tip=document.getElementById('remainTip'); if(tip){tip.classList.remove('show');}
     }
     try{document.getElementById('calc').onclick=calc; document.getElementById('reset').onclick=resetAll; updateRemaining();}catch(e){}
+
+
+document.addEventListener('DOMContentLoaded', function(){
+  const ids = ['protein','fat','fiber','moisture','ash'];
+  ids.forEach(id=>{
+    const el = document.getElementById(id);
+    if(el){
+      el.addEventListener('input', updateRemaining);
+      el.addEventListener('change', updateRemaining);
+    }
+  });
+  // Initial compute
+  updateRemaining();
+});
 
 </script>
 </body>

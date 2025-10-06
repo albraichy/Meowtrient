@@ -712,7 +712,7 @@ html[lang="ar"] .serving-bar #remain{grid-column:3}
 
   function compute(e){
     if(!validateNotEmptyNumeric()){ e && e.preventDefault(); return; }
-    const S = parseEl(sEl);
+        try{ [sEl, ...fields].forEach(function(el){ if(el) el.classList.remove("invalid"); }); }catch(_e){}    try{ if(typeof clearAlert==="function") clearAlert(); }catch(_e){}const S = parseEl(sEl);
     const p = parseEl(byId('protein'));
     const f = parseEl(byId('fat'));
     const fi= parseEl(byId('fiber'));
@@ -755,6 +755,18 @@ html[lang="ar"] .serving-bar #remain{grid-column:3}
 input.invalid{ border-color:#ff4d4f !important; background-color:rgba(255,77,79,.12) !important; }
 #alertArea{ display:none; margin-top:8px; padding:10px 12px; border-radius:12px; background:#5a1515; color:#ffd7d7; font-weight:600; }
 .unit{ opacity:.85; font-size:.9em }
+</style>
+
+
+<style id="final-servingbar-override">
+/* Final, minimal override: serving bar order per language (no double flip) */
+html[lang="ar"] .serving-bar label[for="servingTop"]{ order:1 !important }
+html[lang="ar"] .serving-bar #servingTop{ order:2 !important }
+html[lang="ar"] .serving-bar #remain{ order:3 !important }
+
+html[lang="en"] .serving-bar #remain{ order:1 !important }
+html[lang="en"] .serving-bar #servingTop{ order:2 !important }
+html[lang="en"] .serving-bar label[for="servingTop"]{ order:3 !important }
 </style>
 
 </body>

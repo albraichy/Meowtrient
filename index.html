@@ -6,32 +6,13 @@
   <title>حاسبة حصّة أكل القطط</title>
   <style>
     :root{
-      /* light (default) */
-      --bg:#f6f7fb;
-      --card:#ffffff;
-      --ring:#d1d5db;
-      --text:#0f172a;
-      --muted:#475569;
-      --hx:#0ea5e9;
-      --accent:#16a34a;
-      --accent2:#10b981;
-      --line:#e5e7eb;
-      --result-bg:#f8fafc;
-      --table-head:#f1f5f9;
+      --bg:#f6f7fb; --card:#ffffff; --ring:#d1d5db; --text:#0f172a; --muted:#475569;
+      --hx:#0ea5e9; --accent:#16a34a; --accent2:#10b981; --line:#e5e7eb; --result-bg:#f8fafc; --table-head:#f1f5f9;
     }
     @media (prefers-color-scheme: dark){
       :root{
-        --bg:#0b1120;
-        --card:#0b1220;
-        --ring:#334155;
-        --text:#e5e7eb;
-        --muted:#94a3b8;
-        --hx:#a7f3d0;
-        --accent:#22c55e;
-        --accent2:#10b981;
-        --line:#1f2937;
-        --result-bg:#0a0f1a;
-        --table-head:#0b1325;
+        --bg:#0b1120; --card:#0b1220; --ring:#334155; --text:#e5e7eb; --muted:#94a3b8;
+        --hx:#a7f3d0; --accent:#22c55e; --accent2:#10b981; --line:#1f2937; --result-bg:#0a0f1a; --table-head:#0b1325;
       }
     }
     *{box-sizing:border-box}
@@ -41,62 +22,44 @@
       font-family:"Cairo", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
       line-height:1.6; display:flex; flex-direction:column; min-height:100vh;
     }
-    header{padding:14px 16px; text-align:center; position:sticky; top:0; z-index:5;
-      background:var(--bg); border-bottom:1px solid var(--line)}
-    h1{
-      margin:0; font-size:clamp(18px,3.5vw,26px); font-weight:800; letter-spacing:.2px;
-      background:linear-gradient(90deg,var(--text),var(--hx) 60%,var(--text));
-      -webkit-background-clip:text; background-clip:text; color:transparent
-    }
-    .topbar{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:6px}
-    .lang-toggle{
-      display:inline-flex; gap:6px; align-items:center; border:1px solid var(--line);
-      border-radius:999px; padding:4px 8px; font-size:12px; background:var(--card);
-    }
-    .lang-toggle button{
-      border:none; background:transparent; padding:4px 8px; border-radius:999px; cursor:pointer; font-weight:800; color:var(--muted)
-    }
+    header{padding:10px 12px; text-align:center; position:sticky; top:0; z-index:5; background:var(--bg); border-bottom:1px solid var(--line)}
+    h1{margin:0; font-size:clamp(16px,3.2vw,24px); font-weight:800; letter-spacing:.2px;
+      background:linear-gradient(90deg,var(--text),var(--hx) 60%,var(--text)); -webkit-background-clip:text; background-clip:text; color:transparent}
+    .topbar{display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:6px}
+    .lang-toggle{display:inline-flex; gap:4px; align-items:center; border:1px solid var(--line); border-radius:999px; padding:3px 6px; font-size:11px; background:var(--card)}
+    .lang-toggle button{border:none; background:transparent; padding:3px 6px; border-radius:999px; cursor:pointer; font-weight:800; color:var(--muted)}
     .lang-toggle button.active{ background:var(--line); color:var(--text) }
-    main{ width:min(960px,92%); margin:10px auto 20px; flex:1 }
-    .grid{display:grid; grid-template-columns:1fr; gap:12px}
-    @media(min-width:860px){.grid{grid-template-columns:1fr 1fr}}
-    .card{
-      background:var(--card); border:1px solid var(--line);
-      border-radius:16px; padding:14px; box-shadow:0 8px 20px rgba(0,0,0,.06)
+    main{ width:min(960px,96%); margin:8px auto 16px; flex:1 }
+
+    /* Serving bar above cards */
+    .serving-bar{
+      display:flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--line);
+      border-radius:12px; padding:8px 10px; margin-bottom:8px;
     }
-    .section-title{font-size:13px; font-weight:800; color:#065f46; background:#d1fae5; /* light */
-      display:inline-flex; align-items:center; gap:8px; padding:5px 10px; border-radius:999px; margin-bottom:6px; border:1px solid #a7f3d0}
-    @media (prefers-color-scheme: dark){
-      .section-title{ color:#bbf7d0; background:#052e1a; border:1px solid #064e3b }
+    .serving-bar label{font-weight:800; font-size:13px; white-space:nowrap}
+    .serving-bar input{
+      flex:1; padding:8px 10px; border-radius:10px; border:1px solid var(--ring); background:transparent; font-size:14px; color:var(--text);
     }
-    label{
-      display:block; font-weight:700; margin-bottom:6px;
-      font-size:14px;
-    }
-    input{
-      width:100%; padding:10px 12px; border-radius:12px; background:transparent; border:1px solid var(--ring);
-      outline:none; font-size:15px; color:var(--text)
-    }
+
+    .grid{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+    .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:10px; box-shadow:0 6px 16px rgba(0,0,0,.06)}
+    .section-title{font-size:12px; font-weight:800; color:#065f46; background:#d1fae5; display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px; margin-bottom:6px; border:1px solid #a7f3d0}
+    @media (prefers-color-scheme: dark){ .section-title{ color:#bbf7d0; background:#052e1a; border:1px solid #064e3b } }
+    label{display:block; font-weight:700; margin-bottom:4px; font-size:12px}
+    input{width:100%; padding:8px 10px; border-radius:10px; background:transparent; border:1px solid var(--ring); outline:none; font-size:14px; color:var(--text)}
     input::placeholder{color:#94a3b8}
     input:focus{border-color:var(--accent); box-shadow:0 0 0 3px #22c55e22}
-    .two{display:grid; grid-template-columns:1fr; gap:8px}
-    @media(min-width:600px){.two{grid-template-columns:1fr 1fr}}
-    .controls{display:flex; gap:10px; flex-wrap:wrap; margin-top:8px}
-    .btn{padding:10px 14px; border-radius:12px; border:1px solid var(--line); background:var(--table-head); color:var(--text);
-      font-weight:800; cursor:pointer}
-    .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2)); color:white; border:none}
-    .results{display:grid; grid-template-columns:1fr; gap:8px; margin-top:6px}
-    @media(min-width:520px){.results{grid-template-columns:repeat(3,1fr)}}
-    .result{border:1px dashed var(--line); border-radius:14px; background:var(--result-bg); padding:12px}
-    .label{color:#0369a1; font-size:12px}
-    @media (prefers-color-scheme: dark){ .label{color:#93c5fd} }
-    .value{font-weight:900; font-size:clamp(18px,3vw,26px)}
-    .unit{font-size:.8em; color:#64748b; font-weight:700}
-    table{width:100%; border-collapse:separate; border-spacing:0; overflow:hidden; border-radius:12px; margin-top:6px}
-    thead th{background:var(--table-head); color:var(--text); text-align:right; padding:10px; font-size:13px; border-bottom:1px solid var(--line)}
-    tbody td{padding:10px; border-bottom:1px dashed var(--line); font-size:14px}
+    .two{display:grid; grid-template-columns:1fr; gap:6px}
+
+    table{width:100%; border-collapse:separate; border-spacing:0; overflow:hidden; border-radius:10px; margin-top:4px}
+    thead th{background:var(--table-head); color:var(--text); text-align:right; padding:8px; font-size:12px; border-bottom:1px solid var(--line)}
+    tbody td{padding:8px; border-bottom:1px dashed var(--line); font-size:13px}
     tbody tr:last-child td{border-bottom:none}
-    footer{padding:16px 0 26px; text-align:center; color:#64748b; font-size:12.5px}
+
+    .actions{display:flex; justify-content:center; gap:10px; margin-top:12px}
+    .btn{padding:10px 14px; border-radius:12px; border:1px solid var(--line); background:var(--table-head); color:var(--text); font-weight:800; cursor:pointer; font-size:14px}
+    .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2)); color:white; border:none}
+    footer{padding:12px 0 18px; text-align:center; color:#64748b; font-size:12px}
   </style>
 </head>
 <body>
@@ -112,82 +75,75 @@
   </header>
 
   <main>
+    <!-- Serving size bar -->
+    <div class="serving-bar">
+      <label for="servingTop" data-i18n="serving_label">حجم الحصّة (غ)</label>
+      <input id="servingTop" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" type="text" placeholder="50">
+    </div>
+
     <div class="grid">
+      <!-- Right: inputs (percentages only) -->
       <section class="card">
         <div class="section-title" data-i18n="inputs">⚙️ إدخال البيانات</div>
         <div class="two">
           <div>
-            <label for="serving" data-i18n="serving_label">حجم الحصّة (غ)</label>
-            <input id="serving" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" enterkeyhint="done" type="text" placeholder="50">
-          </div>
-          <div>
             <label for="protein" data-i18n="protein">بروتين %</label>
-            <input id="protein" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" enterkeyhint="next" type="text" placeholder="10">
+            <input id="protein" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" type="text" placeholder="10">
           </div>
-        </div>
-        <div class="two" style="margin-top:6px">
           <div>
             <label for="fat" data-i18n="fat">دهون %</label>
             <input id="fat" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" type="text" placeholder="5">
           </div>
+        </div>
+        <div class="two" style="margin-top:6px">
           <div>
             <label for="fiber" data-i18n="fiber">ألياف %</label>
             <input id="fiber" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" type="text" placeholder="1.5">
           </div>
-        </div>
-        <div class="two" style="margin-top:6px">
           <div>
             <label for="moisture" data-i18n="moisture">رطوبة %</label>
             <input id="moisture" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" type="text" placeholder="78">
           </div>
+        </div>
+        <div class="two" style="margin-top:6px">
           <div>
             <label for="ash" data-i18n="ash">رماد %</label>
             <input id="ash" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" type="text" placeholder="2.5">
           </div>
         </div>
-
-        <div class="controls">
-          <button class="btn primary" id="calc" data-i18n="calc">احسب</button>
-          <button class="btn" id="reset" data-i18n="reset">إعادة ضبط</button>
-        </div>
       </section>
 
+      <!-- Left: results table -->
       <section class="card">
         <div class="section-title" data-i18n="results">📊 النتائج</div>
-        <div class="results">
-          <div class="result">
-            <div class="label" data-i18n="nfe_label">% NFE (الكارب المحسوب)</div>
-            <div class="value"><span id="nfePct">—</span> <span class="unit">%</span></div>
-          </div>
-          <div class="result">
-            <div class="label" data-i18n="kcal100_label">kcal لكل 100غ</div>
-            <div class="value"><span id="kcal100">—</span> <span class="unit">kcal/100g</span></div>
-          </div>
-          <div class="result">
-            <div class="label" data-i18n="kcal_serving">السعرات لكل حصّة</div>
-            <div class="value"><span id="kcalServing">—</span> <span class="unit">kcal</span></div>
-          </div>
-        </div>
-
-        <div class="sep"></div>
         <table>
           <thead>
             <tr>
               <th data-i18n="col_item">العنصر</th>
-              <th data-i18n="col_grams">غرام لكل حصّة</th>
+              <th data-i18n="col_100">١٠٠غ</th>
+              <th data-i18n="col_serving">للحصّة</th>
             </tr>
           </thead>
           <tbody>
-            <tr><td data-i18n="p">البروتين</td><td id="gProtein">—</td></tr>
-            <tr><td data-i18n="f">الدهون</td><td id="gFat">—</td></tr>
-            <tr><td data-i18n="fi">الألياف</td><td id="gFiber">—</td></tr>
-            <tr><td data-i18n="m">الرطوبة</td><td id="gMoisture">—</td></tr>
-            <tr><td data-i18n="a">الرماد</td><td id="gAsh">—</td></tr>
-            <tr><td data-i18n="nfe">NFE (الكارب)</td><td id="gNfe">—</td></tr>
+            <tr><td data-i18n="calories">السعرات</td><td id="cal100">—</td><td id="calServing">—</td></tr>
+            <tr><td data-i18n="p">البروتين</td><td id="p100">—</td><td id="gProtein">—</td></tr>
+            <tr><td data-i18n="f">الدهون</td><td id="f100">—</td><td id="gFat">—</td></tr>
+            <tr><td data-i18n="fi">الألياف</td><td id="fi100">—</td><td id="gFiber">—</td></tr>
+            <tr><td data-i18n="m">الرطوبة</td><td id="m100">—</td><td id="gMoisture">—</td></tr>
+            <tr><td data-i18n="a">الرماد</td><td id="a100">—</td><td id="gAsh">—</td></tr>
+            <tr><td data-i18n="nfe">NFE (الكارب)</td><td id="nfe100">—</td><td id="gNfe">—</td></tr>
           </tbody>
         </table>
       </section>
     </div>
+
+    
+  
+    <div class="actions" id="actionsContainer">
+      <button class="btn primary" id="calc" data-i18n="calc">احسب</button>
+      <button class="btn" id="reset" data-i18n="reset">إعادة ضبط</button>
+    </div>
+
   </main>
 
   <footer>
@@ -195,131 +151,108 @@
   </footer>
 
   <script>
-    // i18n strings
     const STR = {
       ar: {
-        title: "حاسبة حصّة أكل القطط",
-        inputs: "⚙️ إدخال البيانات",
-        serving_label: "حجم الحصّة (غ)",
-        protein: "بروتين %",
-        fat: "دهون %",
-        fiber: "ألياف %",
-        moisture: "رطوبة %",
-        ash: "رماد %",
-        calc: "احسب",
-        reset: "إعادة ضبط",
-        results: "📊 النتائج",
-        nfe_label: "% NFE (الكارب المحسوب)",
-        kcal100_label: "kcal لكل 100غ",
-        kcal_serving: "السعرات لكل حصّة",
-        col_item: "العنصر",
-        col_grams: "غرام لكل حصّة",
-        p: "البروتين", f: "الدهون", fi:"الألياف", m:"الرطوبة", a:"الرماد", nfe:"NFE (الكارب)",
-        rights: "© 2025 albraichy — جميع الحقوق محفوظة."
+        title:"حاسبة حصّة أكل القطط", inputs:"⚙️ إدخال البيانات",
+        serving_label:"حجم الحصّة (غ)",
+        protein:"بروتين %", fat:"دهون %", fiber:"ألياف %", moisture:"رطوبة %", ash:"رماد %",
+        calc:"احسب", reset:"إعادة ضبط", results:"📊 النتائج",
+        col_item:"العنصر", col_100:"١٠٠غ", col_serving:"للحصّة",
+        calories:"السعرات",
+        p:"البروتين", f:"الدهون", fi:"الألياف", m:"الرطوبة", a:"الرماد", nfe:"NFE (الكارب)",
+        rights:"© 2025 albraichy — جميع الحقوق محفوظة."
       },
       en: {
-        title: "Cat Food Serving Calculator",
-        inputs: "⚙️ Inputs",
-        serving_label: "Serving size (g)",
-        protein: "Protein %",
-        fat: "Fat %",
-        fiber: "Fiber %",
-        moisture: "Moisture %",
-        ash: "Ash %",
-        calc: "Calculate",
-        reset: "Reset",
-        results: "📊 Results",
-        nfe_label: "% NFE (calculated carbs)",
-        kcal100_label: "kcal per 100 g",
-        kcal_serving: "kcal per serving",
-        col_item: "Item",
-        col_grams: "Grams per serving",
-        p: "Protein", f: "Fat", fi:"Fiber", m:"Moisture", a:"Ash", nfe:"NFE (carbs)",
-        rights: "© 2025 albraichy — All rights reserved."
+        title:"Cat Food Serving Calculator", inputs:"⚙️ Inputs",
+        serving_label:"Serving size (g)",
+        protein:"Protein %", fat:"Fat %", fiber:"Fiber %", moisture:"Moisture %", ash:"Ash %",
+        calc:"Calculate", reset:"Reset", results:"📊 Results",
+        col_item:"Item", col_100:"per 100 g", col_serving:"per serving",
+        calories:"Calories",
+        p:"Protein", f:"Fat", fi:"Fiber", m:"Moisture", a:"Ash", nfe:"NFE (carbs)",
+        rights:"© 2025 albraichy — All rights reserved."
       }
     };
-
     function setLang(lang){
-      const dict = STR[lang];
+      const d = STR[lang];
       document.documentElement.lang = lang === 'ar' ? 'ar' : 'en';
       document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-      // toggle active buttons
       document.getElementById('btn-ar').classList.toggle('active', lang==='ar');
       document.getElementById('btn-en').classList.toggle('active', lang==='en');
-
-      // update texts
-      document.querySelectorAll('[data-i18n]').forEach(el=>{
-        const key = el.getAttribute('data-i18n');
-        if (dict[key]) el.textContent = dict[key];
-      });
-      document.getElementById('rights').textContent = dict.rights;
+      document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.getAttribute('data-i18n'); if(d[k]) el.textContent=d[k]; });
+      document.getElementById('rights').textContent = d.rights;
     }
 
-    // Modified Atwater factors (kcal per gram)
-    const ATW = { protein: 3.5, fat: 8.5, carb: 3.5 };
-
-    function parseNum(el){
-      // accept , or .
-      const v = el.value.replace(',', '.');
-      const n = parseFloat(v);
-      return isFinite(n) ? n : 0;
-    }
-    function nfePercent(p,f,fi,m,a){
-      let s = (p||0)+(f||0)+(fi||0)+(m||0)+(a||0);
-      return 100 - s;
-    }
-    function kcalPer100g(p,f,fi,m,a){
-      const nfe = nfePercent(p,f,fi,m,a);
-      const kcal = (p*ATW.protein) + (nfe*ATW.carb) + (f*ATW.fat);
-      return { kcal100: kcal, nfe };
-    }
-    function byPct(serving, pct){ return serving * (pct/100); }
-    function fmt(x, d=1){ return (isFinite(x)? Number(x).toFixed(d): '—'); }
+    const ATW = { protein:3.5, fat:8.5, carb:3.5 };
+    function parseNumEl(el){ const v = el.value.replace(',', '.'); const n = parseFloat(v); return isFinite(n)?n:0; }
+    function nfePercent(p,f,fi,m,a){ return 100 - ((p||0)+(f||0)+(fi||0)+(m||0)+(a||0)); }
+    function kcalPer100g(p,f,fi,m,a){ const nfe = nfePercent(p,f,fi,m,a); const kcal = (p*ATW.protein)+(nfe*ATW.carb)+(f*ATW.fat); return {kcal100:kcal, nfe}; }
+    function byPct(s, pct){ return s*(pct/100); }
+    function fmt(x, d=1){ return isFinite(x)?Number(x).toFixed(d):'—'; }
 
     function calc(){
-      const serving = parseNum(document.getElementById('serving'));
-      const p = parseNum(document.getElementById('protein'));
-      const f = parseNum(document.getElementById('fat'));
-      const fi = parseNum(document.getElementById('fiber'));
-      const m = parseNum(document.getElementById('moisture'));
-      const a = parseNum(document.getElementById('ash'));
+      const s = parseNumEl(document.getElementById('servingTop'));
+      const p = parseNumEl(document.getElementById('protein'));
+      const f = parseNumEl(document.getElementById('fat'));
+      const fi = parseNumEl(document.getElementById('fiber'));
+      const m = parseNumEl(document.getElementById('moisture'));
+      const a = parseNumEl(document.getElementById('ash'));
 
-      if(!(serving>0)){ alert(document.documentElement.lang==='ar' ? 'حجم الحصّة لازم يكون رقم صحيح (>0).' : 'Serving size must be > 0.'); return; }
+      if(!(s>0)){ alert(document.documentElement.lang==='ar' ? 'حجم الحصّة لازم يكون رقم صحيح (>0).' : 'Serving size must be > 0.'); return; }
 
-      const { kcal100, nfe } = kcalPer100g(p,f,fi,m,a);
-      const kcalServing = kcal100 * (serving/100);
+      const {kcal100,nfe} = kcalPer100g(p,f,fi,m,a);
+      const ks = kcal100 * (s/100);
 
-      const gP = byPct(serving, p);
-      const gF = byPct(serving, f);
-      const gFi = byPct(serving, fi);
-      const gM = byPct(serving, m);
-      const gA = byPct(serving, a);
-      const gN = byPct(serving, nfe);
+      // per 100 g column
+      p100.textContent = fmt(p);
+      f100.textContent = fmt(f);
+      fi100.textContent = fmt(fi);
+      m100.textContent = fmt(m);
+      a100.textContent = fmt(a);
+      nfe100.textContent = fmt(nfe);
 
-      document.getElementById('nfePct').textContent = fmt(nfe, 1);
-      document.getElementById('kcal100').textContent = fmt(kcal100, 1);
-      document.getElementById('kcalServing').textContent = fmt(kcalServing, 1);
+      // per serving column (grams)
+      gProtein.textContent=fmt(byPct(s,p)); gFat.textContent=fmt(byPct(s,f)); gFiber.textContent=fmt(byPct(s,fi));
+      gMoisture.textContent=fmt(byPct(s,m)); gAsh.textContent=fmt(byPct(s,a)); gNfe.textContent=fmt(byPct(s,nfe));
 
-      document.getElementById('gProtein').textContent = fmt(gP, 1);
-      document.getElementById('gFat').textContent = fmt(gF, 1);
-      document.getElementById('gFiber').textContent = fmt(gFi, 1);
-      document.getElementById('gMoisture').textContent = fmt(gM, 1);
-      document.getElementById('gAsh').textContent = fmt(gA, 1);
-      document.getElementById('gNfe').textContent = fmt(gN, 1);
+      // calories row
+      cal100.textContent = fmt(kcal100);
+      calServing.textContent = fmt(ks);
     }
 
     function resetAll(){
-      ['serving','protein','fat','fiber','moisture','ash'].forEach(id=>document.getElementById(id).value='');
-      ['nfePct','kcal100','kcalServing','gProtein','gFat','gFiber','gMoisture','gAsh','gNfe'].forEach(id=>document.getElementById(id).textContent='—');
+      ['servingTop','protein','fat','fiber','moisture','ash'].forEach(id=>document.getElementById(id).value='');
+      ['p100','f100','fi100','m100','a100','nfe100','gProtein','gFat','gFiber','gMoisture','gAsh','gNfe','cal100','calServing'].forEach(id=>window[id].textContent='—');
     }
 
     document.getElementById('calc').addEventListener('click', calc);
     document.getElementById('reset').addEventListener('click', resetAll);
     document.getElementById('btn-ar').addEventListener('click', ()=>setLang('ar'));
     document.getElementById('btn-en').addEventListener('click', ()=>setLang('en'));
-
-    // init
     setLang('ar');
   </script>
+
+<script>
+function updateButtonsOrder(lang){
+  const container = document.getElementById('actionsContainer');
+  const calcBtn = document.getElementById('calc');
+  const resetBtn = document.getElementById('reset');
+  container.innerHTML = '';
+  if(lang==='ar'){
+    container.appendChild(calcBtn);
+    container.appendChild(resetBtn);
+  } else {
+    container.appendChild(resetBtn);
+    container.appendChild(calcBtn);
+  }
+}
+const oldSetLang = setLang;
+setLang = function(lang){
+  oldSetLang(lang);
+  updateButtonsOrder(lang);
+};
+updateButtonsOrder('ar');
+</script>
+
 </body>
 </html>

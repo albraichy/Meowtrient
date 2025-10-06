@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+
+<html dir="rtl" lang="ar">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>حاسبة حصّة أكل القطط</title>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>حاسبة حصّة أكل القطط</title>
+<style>
     :root{
       --bg:#0b1120; --card:#0b1220; --ring:#334155; --text:#e5e7eb; --muted:#94a3b8;
       --hx:#a7f3d0; --accent:#22c55e; --accent2:#10b981; --line:#1f2937; --result-bg:#0a0f1a; --table-head:#0b1325;
@@ -97,87 +98,79 @@ html[lang="ar"] .serving-bar #remain{grid-column:3}
   </style>
 </head>
 <body>
-  <header>
-    <h1 data-i18n="title">حاسبة حصّة أكل القطط</h1>
-    <div class="topbar">
-      <div></div>
-      <div class="lang-toggle" role="tablist" aria-label="Language"><button id="btn-en" data-lang="en" role="tab" aria-selected="false">English</button>
-        <button id="btn-ar" class="active" data-lang="ar" role="tab" aria-selected="true">العربية</button>
-      </div>
-    </div>
-  </header>
-
-  <main>
-    <!-- Serving size bar -->
-    <div class="serving-bar"><div id="remain" class="remain-pill">100%</div><input id="servingTop" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" placeholder="50"><label for="servingTop" data-i18n="serving_label">حجم الحصّة (غ)</label><div id="remainTip" class="tooltip" data-i18n="remain_tip">مجموع النِّسَب لازم يكون أقل من 100%</div></div>
-    <div id="alertArea" class="alert-area" role="alert" aria-live="polite" style="display:none"></div>
-
-    <div class="grid">
-      <!-- Right: inputs (percentages only) -->
-      <section class="card">
-        <div class="section-title" data-i18n="inputs">⚙️ إدخال البيانات</div>
-        <div class="two">
-          <div>
-            <label for="protein" data-i18n="protein">بروتين %</label>
-            <input id="protein" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" placeholder="10">
-          </div>
-          <div>
-            <label for="fat" data-i18n="fat">دهون %</label>
-            <input id="fat" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" placeholder="5">
-          </div>
-        </div>
-        <div class="two" style="margin-top:6px">
-          <div>
-            <label for="fiber" data-i18n="fiber">ألياف %</label>
-            <input id="fiber" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" placeholder="1.5">
-          </div>
-          <div>
-            <label for="moisture" data-i18n="moisture">رطوبة %</label>
-            <input id="moisture" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" placeholder="78">
-          </div>
-        </div>
-        <div class="two" style="margin-top:6px">
-          <div>
-            <label for="ash" data-i18n="ash">رماد %</label>
-            <input id="ash" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" placeholder="2.5">
-          </div>
-        </div>
-      </section>
-
-      <!-- Left: results table -->
-      <section class="card">
-        <div class="section-title" data-i18n="results">📊 النتائج</div>
-        <table>
-          <thead>
-            <tr>
-              <th data-i18n="col_item">&lrm;</th>
-              <th data-i18n="col_serving">لكل حصة</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td data-i18n="calories">السعرات</td><td id="calServing">—</td></tr>
-            <tr><td data-i18n="p">البروتين</td><td id="gProtein">—</td></tr>
-            <tr><td data-i18n="nfe">الكارب</td><td id="gNfe">—</td></tr>
-            <tr><td data-i18n="f">الدهون</td><td id="gFat">—</td></tr>
-            <tr><td data-i18n="fi">الألياف</td><td id="gFiber">—</td></tr>
-            <tr><td data-i18n="m">الرطوبة</td><td id="gMoisture">—</td></tr>
-            <tr><td data-i18n="a">الرماد</td><td id="gAsh">—</td></tr>
-          </tbody>
-        </table>
-      </section>
-    </div>
-
-    <div class="actions" id="actionsContainer" dir="inherit">
-      <button class="btn primary" id="calc" data-i18n="calc">احسب</button>
-      <button class="btn" id="reset" data-i18n="reset">إعادة ضبط</button>
-    </div>
-
-    <footer>
-      <span id="rights">© 2025 albraichy — جميع الحقوق محفوظة.</span>
-    </footer>
-  </main>
-
-  <script>
+<header>
+<h1 data-i18n="title">حاسبة حصّة أكل القطط</h1>
+<div class="topbar">
+<div></div>
+<div aria-label="Language" class="lang-toggle" role="tablist"><button aria-selected="false" data-lang="en" id="btn-en" role="tab">English</button>
+<button aria-selected="true" class="active" data-lang="ar" id="btn-ar" role="tab">العربية</button>
+</div>
+</div>
+</header>
+<main>
+<!-- Serving size bar -->
+<section class="card" id="servingCard" style="margin-bottom: 12px"><div class="serving-bar"><div class="remain-pill" id="remain">100%</div><input id="servingTop" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"/><label data-i18n="serving_label" for="servingTop">حجم الحصّة (غ)</label><div class="tooltip" data-i18n="remain_tip" id="remainTip">مجموع النِّسَب لازم يكون أقل من 100%</div></div><div aria-live="polite" class="alert-area" id="alertArea" role="alert" style="display:none"></div></section><div class="grid">
+<!-- Right: inputs (percentages only) -->
+<section class="card">
+<div class="section-title" data-i18n="inputs">⚙️ إدخال البيانات</div>
+<div class="two">
+<div>
+<label data-i18n="protein" for="protein">بروتين %</label>
+<input id="protein" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"/>
+</div>
+<div>
+<label data-i18n="fat" for="fat">دهون %</label>
+<input id="fat" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"/>
+</div>
+</div>
+<div class="two" style="margin-top:6px">
+<div>
+<label data-i18n="fiber" for="fiber">ألياف %</label>
+<input id="fiber" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"/>
+</div>
+<div>
+<label data-i18n="moisture" for="moisture">رطوبة %</label>
+<input id="moisture" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"/>
+</div>
+</div>
+<div class="two" style="margin-top:6px">
+<div>
+<label data-i18n="ash" for="ash">رماد %</label>
+<input id="ash" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"/>
+</div>
+</div>
+</section>
+<!-- Left: results table -->
+<section class="card">
+<div class="section-title" data-i18n="results">📊 النتائج</div>
+<table>
+<thead>
+<tr>
+<th data-i18n="col_item">‎</th>
+<th data-i18n="col_serving">لكل حصة</th>
+</tr>
+</thead>
+<tbody>
+<tr><td data-i18n="calories">السعرات</td><td id="calServing">—</td></tr>
+<tr><td data-i18n="p">البروتين</td><td id="gProtein">—</td></tr>
+<tr><td data-i18n="nfe">الكارب</td><td id="gNfe">—</td></tr>
+<tr><td data-i18n="f">الدهون</td><td id="gFat">—</td></tr>
+<tr><td data-i18n="fi">الألياف</td><td id="gFiber">—</td></tr>
+<tr><td data-i18n="m">الرطوبة</td><td id="gMoisture">—</td></tr>
+<tr><td data-i18n="a">الرماد</td><td id="gAsh">—</td></tr>
+</tbody>
+</table>
+</section>
+</div>
+<div class="actions" dir="inherit" id="actionsContainer">
+<button class="btn primary" data-i18n="calc" id="calc">احسب</button>
+<button class="btn" data-i18n="reset" id="reset">إعادة ضبط</button>
+</div>
+<footer>
+<span id="rights">© 2025 albraichy — جميع الحقوق محفوظة.</span>
+</footer>
+</main>
+<script>
     const STR = {
       ar: {
         title:"حاسبة حصّة أكل القطط", inputs:"⚙️ إدخال البيانات",
@@ -455,7 +448,6 @@ html[lang="ar"] .serving-bar #remain{grid-column:3}
     .forEach(hookCalc);
 })();
 </script>
-
 <!-- Meowtrition minimal patch: validation + units + lang-aware serving bar -->
 <script>
 (function(){
@@ -600,8 +592,6 @@ html[lang="ar"] .serving-bar #remain{grid-column:3}
   [btnAr, btnEn].forEach(b=> b && b.addEventListener('click', refreshLayout));
 })();
 </script>
-
-
 <!-- Patch 2: lang-aware serving bar flip + strict empty-fields validation + remove placeholders -->
 <script>
 (function(){
@@ -756,8 +746,6 @@ input.invalid{ border-color:#ff4d4f !important; background-color:rgba(255,77,79,
 #alertArea{ display:none; margin-top:8px; padding:10px 12px; border-radius:12px; background:#5a1515; color:#ffd7d7; font-weight:600; }
 .unit{ opacity:.85; font-size:.9em }
 </style>
-
-
 <style id="final-servingbar-override">
 /* Final, minimal override: serving bar order per language (no double flip) */
 html[lang="ar"] .serving-bar label[for="servingTop"]{ order:1 !important }
@@ -768,6 +756,5 @@ html[lang="en"] .serving-bar #remain{ order:1 !important }
 html[lang="en"] .serving-bar #servingTop{ order:2 !important }
 html[lang="en"] .serving-bar label[for="servingTop"]{ order:3 !important }
 </style>
-
 </body>
 </html>

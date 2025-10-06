@@ -152,6 +152,24 @@ html[lang="en"] #servingCard .serving-bar label[for="servingTop"]{ order:3; text
 body{ min-height:100dvh; display:flex; flex-direction:column }
 main{ flex:1 0 auto }
 footer{ margin-top:auto }
+</style><style id="servingcard-strong-order">
+/* Strong mapping of serving card layout with !important to avoid legacy clashes */
+#servingCard .serving-bar{ display:grid !important; grid-template-columns:auto 1fr auto !important; gap:10px !important; align-items:center !important; }
+/* Arabic: label | input | pill */
+html[lang="ar"] #servingCard .serving-bar label[for="servingTop"]{ order:1 !important; text-align:right !important }
+html[lang="ar"] #servingCard .serving-bar #servingTop{ order:2 !important }
+html[lang="ar"] #servingCard .serving-bar #remain{ order:3 !important }
+/* English: pill | input | label */
+html[lang="en"] #servingCard .serving-bar{ direction:ltr !important }
+html[lang="en"] #servingCard .serving-bar #remain{ order:1 !important }
+html[lang="en"] #servingCard .serving-bar #servingTop{ order:2 !important }
+html[lang="en"] #servingCard .serving-bar label[for="servingTop"]{ order:3 !important; text-align:left !important }
+</style><style id="sticky-footer-solid">
+html, body{ height:100%; }
+body{ min-height:100dvh; display:flex; flex-direction:column; }
+header{ flex: 0 0 auto; }
+main{ flex:1 0 auto; }
+#pageFooter{ flex:0 0 auto; margin-top:auto; }
 </style></head>
 <body>
 <header>
@@ -222,11 +240,8 @@ footer{ margin-top:auto }
 <button class="btn primary" data-i18n="calc" id="calc">احسب</button>
 <button class="btn" data-i18n="reset" id="reset">إعادة ضبط</button>
 </div>
-<footer id="pageFooter">
-<span id="rights">© 2025 albraichy — جميع الحقوق محفوظة.</span>
-</footer>
-</main>
 
+</main>
 <!-- Meowtrition minimal patch: validation + units + lang-aware serving bar -->
 <script>
 (function(){
@@ -525,7 +540,6 @@ input.invalid{ border-color:#ff4d4f !important; background-color:rgba(255,77,79,
 #alertArea{ display:none; margin-top:8px; padding:10px 12px; border-radius:12px; background:#5a1515; color:#ffd7d7; font-weight:600; }
 .unit{ opacity:.85; font-size:.9em }
 </style>
-
 <script id="remain-bad-threshold-fix">
 (function(){
   const byId = (id)=>document.getElementById(id);
@@ -592,5 +606,7 @@ input.invalid{ border-color:#ff4d4f !important; background-color:rgba(255,77,79,
   document.addEventListener('DOMContentLoaded', refresh);
   refresh();
 })();
-</script></body>
+</script><footer id="pageFooter">
+<span id="rights">© 2025 albraichy — جميع الحقوق محفوظة.</span>
+</footer></body>
 </html>

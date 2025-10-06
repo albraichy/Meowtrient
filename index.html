@@ -52,14 +52,14 @@
     .two{display:grid; grid-template-columns:1fr; gap:6px}
 
     table{width:100%; border-collapse:separate; border-spacing:0; overflow:hidden; border-radius:10px; margin-top:4px}
-    thead th{background:var(--table-head); color:var(--text); text-align:right; padding:8px; font-size:12px; border-bottom:1px solid var(--line)}
+    thead th{background:var(--table-head); color:var(--text); text-align:right; padding:8px; font-size:12px; border-bottom:1px solid var(--line); white-space:nowrap}
     tbody td{padding:8px; border-bottom:1px dashed var(--line); font-size:13px}
     tbody tr:last-child td{border-bottom:none}
 
     .actions{display:flex; justify-content:center; gap:10px; margin-top:12px}
     .btn{padding:10px 14px; border-radius:12px; border:1px solid var(--line); background:var(--table-head); color:var(--text); font-weight:800; cursor:pointer; font-size:14px}
     .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2)); color:white; border:none}
-    footer{padding:12px 0 18px; text-align:center; color:#64748b; font-size:12px}
+    footer{padding:6px 0 10px; text-align:center; color:#64748b; font-size:12px}
   </style>
 </head>
 <body>
@@ -124,15 +124,17 @@
               <th data-i18n="col_serving">للحصّة</th>
             </tr>
           </thead>
+          
           <tbody>
             <tr><td data-i18n="calories">السعرات</td><td id="cal100">—</td><td id="calServing">—</td></tr>
             <tr><td data-i18n="p">البروتين</td><td id="p100">—</td><td id="gProtein">—</td></tr>
+            <tr><td data-i18n="nfe">الكارب</td><td id="nfe100">—</td><td id="gNfe">—</td></tr>
             <tr><td data-i18n="f">الدهون</td><td id="f100">—</td><td id="gFat">—</td></tr>
             <tr><td data-i18n="fi">الألياف</td><td id="fi100">—</td><td id="gFiber">—</td></tr>
             <tr><td data-i18n="m">الرطوبة</td><td id="m100">—</td><td id="gMoisture">—</td></tr>
             <tr><td data-i18n="a">الرماد</td><td id="a100">—</td><td id="gAsh">—</td></tr>
-            <tr><td data-i18n="nfe">NFE (الكارب)</td><td id="nfe100">—</td><td id="gNfe">—</td></tr>
           </tbody>
+
         </table>
       </section>
     </div>
@@ -237,21 +239,25 @@ function updateButtonsOrder(lang){
   const container = document.getElementById('actionsContainer');
   const calcBtn = document.getElementById('calc');
   const resetBtn = document.getElementById('reset');
+  // Clear and append in correct order
   container.innerHTML = '';
   if(lang==='ar'){
-    container.appendChild(calcBtn);
+    container.appendChild(calcBtn);  // calc right (in RTL flex, appended first shows rightmost)
     container.appendChild(resetBtn);
-  } else {
-    container.appendChild(resetBtn);
+  }else{
+    container.appendChild(resetBtn); // in LTR, appended first shows leftmost -> Reset | Calculate
     container.appendChild(calcBtn);
   }
 }
-const oldSetLang = setLang;
+// Patch setLang to also flip buttons
+const _setLang = setLang;
 setLang = function(lang){
-  oldSetLang(lang);
+  _setLang(lang);
+  // Switch direction for serving bar input alignment as well
   updateButtonsOrder(lang);
 };
-updateButtonsOrder('ar');
+// Prevent header wrap visually consistent heights
+document.addEventListener('DOMContentLoaded', function(){ updateButtonsOrder('ar'); });
 </script>
 
 </body>

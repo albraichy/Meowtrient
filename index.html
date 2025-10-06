@@ -89,6 +89,11 @@ html[lang="ar"] .serving-bar #remain{grid-column:3}
 .serving-bar label[for="servingTop"]{margin:0; align-self:center; display:block}
 .serving-bar input#servingTop{width:100%}
 
+  
+.alert-area{margin-top:8px; padding:10px 12px; border-radius:12px; font-size:14px; font-weight:700;
+  background:#3b0a0a; color:#fecaca; border:1px solid #7f1d1d}
+.input.invalid, input.invalid{border-color:#ef4444 !important; box-shadow:0 0 0 3px #ef444422 !important; background:#7f1d1d22}
+
   </style>
 </head>
 <body>
@@ -105,6 +110,7 @@ html[lang="ar"] .serving-bar #remain{grid-column:3}
   <main>
     <!-- Serving size bar -->
     <div class="serving-bar"><div id="remain" class="remain-pill">100%</div><input id="servingTop" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" placeholder="50"><label for="servingTop" data-i18n="serving_label">حجم الحصّة (غ)</label><div id="remainTip" class="tooltip" data-i18n="remain_tip">مجموع النِّسَب لازم يكون أقل من 100%</div></div>
+    <div id="alertArea" class="alert-area" role="alert" aria-live="polite" style="display:none"></div>
 
     <div class="grid">
       <!-- Right: inputs (percentages only) -->
@@ -316,6 +322,49 @@ html[lang="ar"] .serving-bar #remain{grid-column:3}
     fields.forEach(el=>{ el.addEventListener('input', updateRemaining); el.addEventListener('change', updateRemaining); });
     updateRemaining();
   });
+})();
+
+// --- Enhanced remaining/alerts/validation ---
+(function(){
+  const $ = (s)=>document.querySelector(s);
+  const byId = (id)=>document.getElementById(id);
+  const fields = ['protein','fat','fiber','moisture','ash'].map(id=>byId(id));
+  const sEl = byId('servingTop');
+  function totalRem(){
+    const v = Object.fromEntries(fields.map(el=>[el.id, parseNumEl(el)]));
+    return 100 - ((v.protein||0)+(v.fat||0)+(v.fiber||0)+(v.moisture||0)+(v.ash||0));
+  }
+  window.updateRemaining = function(){
+    const rem = totalRem();
+    const pill = byId('remain');
+    if(pill){ pill.textContent = (isFinite(rem)?Math.max(rem,-999):100).toFixed(0) + '%'; pill.classList.toggle('bad', rem<=0); }
+    const area = byId('alertArea');
+    if(area){
+      if(rem<=0){
+        area.style.display='block';
+        area.textContent = (document.documentElement.lang==='ar') ? 'مجموع النِّسَب لازم يكون أقل من 100%' : 'Total of percentages must be less than 100%';
+      }else{
+        area.style.display='none'; area.textContent='';
+      }
+    }
+  };
+  // mark invalid helper
+  function markInvalid(el){ if(!el) return; el.classList.add('invalid'); el.addEventListener('focus', ()=>el.classList.remove('invalid'), {once:true}); }
+  // Hook calculate button if exists
+  const calcBtn = byId('calc');
+  if(calcBtn){
+    calcBtn.addEventListener('click', (e)=>{
+      // validate serving and fields; no alerts, just marks
+      let ok = true;
+      if(!(parseNumEl(sEl)>0)){ markInvalid(sEl); ok=false; }
+      fields.forEach(el=>{ if(String(el.value).trim()===''){ markInvalid(el); ok=false; } });
+      updateRemaining();
+      if(!ok || totalRem()<=0){ e.preventDefault(); return; }
+    });
+  }
+  // Live update on input/change
+  fields.concat([sEl]).forEach(el=>{ if(el){ el.addEventListener('input', updateRemaining); el.addEventListener('change', updateRemaining);} });
+  updateRemaining();
 })();
 </script>
 </body>

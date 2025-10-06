@@ -120,19 +120,18 @@
         <table>
           <thead>
             <tr>
-              <th data-i18n="col_item">العنصر</th>
-              <th data-i18n="col_100">١٠٠غ</th>
-              <th data-i18n="col_serving">للحصّة</th>
+              <th data-i18n="col_item">&lrm;</th>
+              <th data-i18n="col_serving">غ لكل حصة</th>
             </tr>
           </thead>
           <tbody>
-            <tr><td data-i18n="calories">السعرات</td><td id="cal100">—</td><td id="calServing">—</td></tr>
-            <tr><td data-i18n="p">البروتين</td><td id="p100">—</td><td id="gProtein">—</td></tr>
-            <tr><td data-i18n="nfe">الكارب</td><td id="nfe100">—</td><td id="gNfe">—</td></tr>
-            <tr><td data-i18n="f">الدهون</td><td id="f100">—</td><td id="gFat">—</td></tr>
-            <tr><td data-i18n="fi">الألياف</td><td id="fi100">—</td><td id="gFiber">—</td></tr>
-            <tr><td data-i18n="m">الرطوبة</td><td id="m100">—</td><td id="gMoisture">—</td></tr>
-            <tr><td data-i18n="a">الرماد</td><td id="a100">—</td><td id="gAsh">—</td></tr>
+            <tr><td data-i18n="calories">السعرات</td><td id="calServing">—</td></tr>
+            <tr><td data-i18n="p">البروتين</td><td id="gProtein">—</td></tr>
+            <tr><td data-i18n="nfe">الكارب</td><td id="gNfe">—</td></tr>
+            <tr><td data-i18n="f">الدهون</td><td id="gFat">—</td></tr>
+            <tr><td data-i18n="fi">الألياف</td><td id="gFiber">—</td></tr>
+            <tr><td data-i18n="m">الرطوبة</td><td id="gMoisture">—</td></tr>
+            <tr><td data-i18n="a">الرماد</td><td id="gAsh">—</td></tr>
           </tbody>
         </table>
       </section>
@@ -155,7 +154,7 @@
         serving_label:"حجم الحصّة (غ)",
         protein:"بروتين %", fat:"دهون %", fiber:"ألياف %", moisture:"رطوبة %", ash:"رماد %",
         calc:"احسب", reset:"إعادة ضبط", results:"📊 النتائج",
-        col_item:"العنصر", col_100:"١٠٠غ", col_serving:"للحصّة",
+        col_item:"", col_serving:"غ لكل حصة",
         calories:"السعرات",
         p:"البروتين", f:"الدهون", fi:"الألياف", m:"الرطوبة", a:"الرماد", nfe:"الكارب",
         rights:"© 2025 albraichy — جميع الحقوق محفوظة."
@@ -165,7 +164,7 @@
         serving_label:"Serving size (g)",
         protein:"Protein %", fat:"Fat %", fiber:"Fiber %", moisture:"Moisture %", ash:"Ash %",
         calc:"Calculate", reset:"Reset", results:"📊 Results",
-        col_item:"Item", col_100:"100g", col_serving:"serving",
+        col_item:"", col_serving:"g / serving",
         calories:"Calories",
         p:"Protein", f:"Fat", fi:"Fiber", m:"Moisture", a:"Ash", nfe:"Carb",
         rights:"© 2025 albraichy — All rights reserved."
@@ -174,7 +173,6 @@
     function setLang(lang){
       const d = STR[lang];
       document.documentElement.lang = lang === 'ar' ? 'ar' : 'en';
-      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
       // Toggle active buttons
       document.getElementById('btn-ar').classList.toggle('active', lang==='ar');
       document.getElementById('btn-en').classList.toggle('active', lang==='en');
@@ -182,8 +180,7 @@
       document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.getAttribute('data-i18n'); if(d[k]) el.textContent=d[k]; });
       document.getElementById('rights').textContent = d.rights;
       // Make sure actions inherit correct direction so order visually meets requirement
-      document.getElementById('actionsContainer').setAttribute('dir', document.documentElement.dir);
-    }
+      }
 
     const ATW = { protein:3.5, fat:8.5, carb:3.5 };
     function parseNumEl(el){ const v = el.value.replace(',', '.'); const n = parseFloat(v); return isFinite(n)?n:0; }
@@ -205,14 +202,6 @@
       const {kcal100,nfe} = kcalPer100g(p,f,fi,m,a);
       const ks = kcal100 * (s/100);
 
-      // per 100 g column
-      p100.textContent = fmt(p);
-      nfe100.textContent = fmt(nfe);
-      f100.textContent = fmt(f);
-      fi100.textContent = fmt(fi);
-      m100.textContent = fmt(m);
-      a100.textContent = fmt(a);
-
       // per serving column (grams)
       gProtein.textContent=fmt(byPct(s,p));
       gNfe.textContent=fmt(byPct(s,nfe));
@@ -222,13 +211,12 @@
       gAsh.textContent=fmt(byPct(s,a));
 
       // calories row
-      cal100.textContent = fmt(kcal100);
       calServing.textContent = fmt(ks);
     }
 
     function resetAll(){
       ['servingTop','protein','fat','fiber','moisture','ash'].forEach(id=>document.getElementById(id).value='');
-      ['p100','nfe100','f100','fi100','m100','a100','gProtein','gNfe','gFat','gFiber','gMoisture','gAsh','cal100','calServing'].forEach(id=>window[id].textContent='—');
+      ['gProtein','gNfe','gFat','gFiber','gMoisture','gAsh','calServing'].forEach(id=>window[id].textContent='—');
     }
 
     document.getElementById('calc').addEventListener('click', calc);

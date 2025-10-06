@@ -61,7 +61,22 @@
     .remain-pill.bad{background:var(--bad-bg); color:var(--bad-fg); border-color:var(--bad-br)}
     .alert-area{margin-top:8px; padding:10px 12px; border-radius:12px; font-size:14px; font-weight:700; background:var(--bad-bg); color:var(--bad-fg); border:1px solid var(--bad-br); display:none}
     input.invalid{ border-color:#ff4d4f !important; background-color:rgba(255,77,79,.12) !important; }
-  </style>
+  
+#servingCard .serving-bar label[for="servingTop"] {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+#servingCard .serving-bar #servingTop {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+#servingCard .serving-bar #remain {
+  flex: 0 0 auto;
+}
+
+</style>
 </head>
 <body>
   <header>
